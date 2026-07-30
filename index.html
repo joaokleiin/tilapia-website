@@ -1,0 +1,1529 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Site acadêmico moderno e educativo sobre Tilápia do Nilo no Brasil, com dados técnicos da FAO 2024.">
+  <title>Tilápia do Nilo | Aquicultura Brasileira</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    :root {
+      --color-primary: #0A4F4E;
+      --color-secondary: #1B8A7A;
+      --color-accent: #4ECDC4;
+      --color-highlight: #F7C948;
+      --color-dark: #0D1B2A;
+      --color-surface: #F0F8F7;
+      --color-text: #1A2E2D;
+      --color-muted: #4F7F7B;
+      --color-card: #FFFFFF;
+      --color-line: rgba(10, 79, 78, 0.16);
+      --shadow-soft: 0 18px 50px rgba(13, 27, 42, 0.12);
+      --shadow-lift: 0 28px 70px rgba(13, 27, 42, 0.18);
+      --radius: 8px;
+      --nav-height: 74px;
+    }
+
+    [data-theme="dark"] {
+      --color-dark: #071316;
+      --color-surface: #112626;
+      --color-text: #E8F5F5;
+      --color-muted: #9BCBC8;
+      --color-card: #163332;
+      --color-line: rgba(78, 205, 196, 0.2);
+      --shadow-soft: 0 18px 50px rgba(0, 0, 0, 0.32);
+      --shadow-lift: 0 28px 70px rgba(0, 0, 0, 0.42);
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: calc(var(--nav-height) + 18px);
+    }
+
+    body {
+      margin: 0;
+      font-family: "Inter", system-ui, sans-serif;
+      color: var(--color-text);
+      background: var(--color-surface);
+      line-height: 1.65;
+      overflow-x: hidden;
+      transition: background 0.25s ease, color 0.25s ease;
+    }
+
+    body.nav-open { overflow: hidden; }
+
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+
+    .progress {
+      position: fixed;
+      inset: 0 auto auto 0;
+      width: 0%;
+      height: 4px;
+      z-index: 1000;
+      background: linear-gradient(90deg, var(--color-accent), var(--color-highlight));
+      box-shadow: 0 0 16px rgba(78, 205, 196, 0.7);
+    }
+
+    .loader {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      z-index: 1100;
+      background: radial-gradient(circle at 50% 42%, #1B8A7A, #0D1B2A 62%);
+      color: #fff;
+      pointer-events: none;
+      animation: loaderExit 0.45s ease 1.15s forwards;
+      transition: opacity 0.25s ease, visibility 0.25s ease;
+    }
+
+    .loader.hidden { opacity: 0; visibility: hidden; }
+
+    .loader-fish {
+      font-size: 3rem;
+      animation: swim 1.5s ease-in-out infinite;
+      filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.3));
+    }
+
+    @keyframes swim {
+      0%, 100% { transform: translateX(-18px) rotate(-4deg); }
+      50% { transform: translateX(18px) rotate(4deg); }
+    }
+
+    @keyframes loaderExit {
+      to { opacity: 0; visibility: hidden; }
+    }
+
+    .navbar {
+      position: fixed;
+      inset: 0 0 auto 0;
+      height: var(--nav-height);
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 24px;
+      color: #fff;
+      transition: background 0.25s ease, box-shadow 0.25s ease, color 0.25s ease;
+    }
+
+    .navbar.scrolled, [data-theme="dark"] .navbar {
+      background: rgba(13, 27, 42, 0.86);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 12px 34px rgba(0, 0, 0, 0.18);
+    }
+
+    .nav-inner {
+      width: min(1220px, 100%);
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      letter-spacing: 0;
+      white-space: nowrap;
+    }
+
+    .brand i { color: var(--color-highlight); }
+
+    .nav-links {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .nav-links::-webkit-scrollbar { display: none; }
+
+    .nav-links a {
+      padding: 10px 11px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      opacity: 0.9;
+      white-space: nowrap;
+    }
+
+    .nav-links a.active, .nav-links a:hover {
+      background: rgba(78, 205, 196, 0.18);
+      color: #fff;
+    }
+
+    .icon-button {
+      width: 42px;
+      height: 42px;
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      border-radius: 50%;
+      display: inline-grid;
+      place-items: center;
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .icon-button:hover { transform: translateY(-2px); background: rgba(255, 255, 255, 0.22); }
+    .menu-toggle { display: none; }
+
+    .hero {
+      min-height: 100vh;
+      position: relative;
+      display: grid;
+      align-items: center;
+      padding: calc(var(--nav-height) + 56px) 24px 86px;
+      color: #fff;
+      isolation: isolate;
+      overflow: hidden;
+      background: linear-gradient(135deg, rgba(13, 27, 42, 0.94), rgba(10, 79, 78, 0.82)), url("https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=1800&q=80&auto=format&fit=crop") center/cover;
+    }
+
+    #waveCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -2;
+      opacity: 0.72;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0 0;
+      height: 170px;
+      background: linear-gradient(0deg, var(--color-surface), transparent);
+      z-index: -1;
+    }
+
+    .container {
+      width: min(1180px, calc(100% - 32px));
+      margin-inline: auto;
+    }
+
+    .hero-content {
+      width: min(1040px, 100%);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--color-highlight);
+      font-weight: 800;
+      text-transform: uppercase;
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+    }
+
+    h1, h2, h3 {
+      font-family: "Playfair Display", Georgia, serif;
+      line-height: 1.05;
+      margin: 0;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      margin-top: 14px;
+      font-size: clamp(3.6rem, 10vw, 7.5rem);
+      max-width: 950px;
+      background: linear-gradient(100deg, #fff 12%, var(--color-accent), var(--color-highlight));
+      -webkit-background-clip: text;
+      color: transparent;
+      text-shadow: 0 20px 60px rgba(0, 0, 0, 0.22);
+    }
+
+    .hero-subtitle {
+      margin: 14px 0 0;
+      font-size: clamp(1.05rem, 2.4vw, 1.72rem);
+      font-weight: 700;
+      max-width: 850px;
+    }
+
+    .hero-copy {
+      max-width: 720px;
+      font-size: 1.08rem;
+      color: rgba(255, 255, 255, 0.86);
+      margin: 18px 0 26px;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-bottom: 36px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 48px;
+      border: 0;
+      border-radius: 999px;
+      padding: 13px 20px;
+      background: var(--color-highlight);
+      color: #12211f;
+      font-weight: 800;
+      box-shadow: 0 14px 36px rgba(247, 201, 72, 0.28);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 18px 42px rgba(247, 201, 72, 0.36); }
+    .btn.secondary { background: rgba(255, 255, 255, 0.14); color: #fff; border: 1px solid rgba(255,255,255,0.25); box-shadow: none; }
+
+    .stat-grid, .grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .stat-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .stat-card {
+      border: 1px solid rgba(255,255,255,0.16);
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(16px);
+      border-radius: var(--radius);
+      padding: 18px;
+      min-height: 138px;
+    }
+
+    .stat-card strong, .kpi strong {
+      display: block;
+      font-family: "JetBrains Mono", monospace;
+      font-size: clamp(1.6rem, 4vw, 2.45rem);
+      line-height: 1.05;
+      color: var(--color-highlight);
+      white-space: nowrap;
+    }
+
+    .stat-card strong span, .kpi strong span { display: inline; margin: 0; }
+    .stat-card > span, .kpi > span { display: block; margin-top: 8px; font-weight: 700; }
+    .scroll-cue { position: absolute; left: 50%; bottom: 24px; transform: translateX(-50%); animation: pulseDown 1.5s infinite; color: #fff; }
+    @keyframes pulseDown { 0%, 100% { transform: translate(-50%, -4px); opacity: 0.55; } 50% { transform: translate(-50%, 8px); opacity: 1; } }
+
+    section {
+      padding: 92px 0;
+      position: relative;
+    }
+
+    section:nth-of-type(even) {
+      background: color-mix(in srgb, var(--color-card) 66%, var(--color-surface));
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(260px, 0.5fr);
+      gap: 28px;
+      align-items: end;
+      margin-bottom: 34px;
+    }
+
+    .section-head h2 {
+      font-size: clamp(2.35rem, 6vw, 4.7rem);
+      color: var(--color-primary);
+    }
+
+    [data-theme="dark"] .section-head h2 { color: var(--color-accent); }
+    .lead { color: var(--color-muted); font-size: 1.04rem; margin: 0; }
+
+    .card {
+      background: var(--color-card);
+      border: 1px solid var(--color-line);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: var(--shadow-soft);
+      transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-lift);
+      border-color: color-mix(in srgb, var(--color-accent), var(--color-line));
+    }
+
+    .card h3 {
+      font-size: 1.35rem;
+      color: var(--color-primary);
+      margin-bottom: 8px;
+    }
+
+    [data-theme="dark"] .card h3 { color: var(--color-highlight); }
+    .card p { margin: 8px 0 0; color: var(--color-muted); }
+
+    .timeline {
+      display: grid;
+      gap: 16px;
+      border-left: 3px solid var(--color-accent);
+      padding-left: 24px;
+    }
+
+    .timeline-item {
+      position: relative;
+      display: grid;
+      grid-template-columns: 100px 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .timeline-item::before {
+      content: "";
+      position: absolute;
+      left: -32px;
+      top: 8px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--color-highlight);
+      box-shadow: 0 0 0 6px color-mix(in srgb, var(--color-highlight) 20%, transparent);
+    }
+
+    .year {
+      font-family: "JetBrains Mono", monospace;
+      color: var(--color-primary);
+      font-weight: 800;
+    }
+
+    .taxonomy {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: var(--radius);
+    }
+
+    th, td {
+      padding: 13px 14px;
+      border-bottom: 1px solid var(--color-line);
+      text-align: left;
+    }
+
+    th { background: var(--color-primary); color: #fff; }
+
+    .feature-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .two-col { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+    .three-col { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .four-col { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+    .mini-icon {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: color-mix(in srgb, var(--color-accent) 18%, transparent);
+      color: var(--color-primary);
+      margin-bottom: 12px;
+      font-size: 1.2rem;
+    }
+
+    #map {
+      min-height: 560px;
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow-soft);
+      border: 1px solid var(--color-line);
+    }
+
+    .ranking {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 12px;
+    }
+
+    .ranking li {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid var(--color-line);
+      padding-bottom: 10px;
+      font-weight: 700;
+    }
+
+    .tabs, .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .tab, .filter {
+      border: 1px solid var(--color-line);
+      border-radius: 999px;
+      padding: 10px 14px;
+      background: var(--color-card);
+      color: var(--color-text);
+      font-weight: 800;
+    }
+
+    .tab.active, .filter.active {
+      background: var(--color-primary);
+      color: #fff;
+      border-color: var(--color-primary);
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(130px, 1fr));
+      gap: 12px;
+      align-items: center;
+    }
+
+    .flow .node {
+      position: relative;
+      min-height: 112px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      font-weight: 800;
+    }
+
+    .flow .node::after {
+      content: "\f061";
+      font-family: "Font Awesome 6 Free";
+      font-weight: 900;
+      position: absolute;
+      right: -17px;
+      color: var(--color-secondary);
+    }
+
+    .flow .node:last-child::after { display: none; }
+
+    .chart-box {
+      min-height: 320px;
+      position: relative;
+    }
+
+    .chart-box canvas { width: 100% !important; max-height: 330px; }
+
+    .gauge-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .accordion details {
+      background: var(--color-card);
+      border: 1px solid var(--color-line);
+      border-radius: var(--radius);
+      margin-bottom: 12px;
+      box-shadow: var(--shadow-soft);
+      overflow: hidden;
+    }
+
+    summary {
+      padding: 18px 20px;
+      font-weight: 900;
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    summary::-webkit-details-marker { display: none; }
+    summary::after { content: "+"; color: var(--color-secondary); font-size: 1.35rem; }
+    details[open] summary::after { content: "-"; }
+    details p { padding: 0 20px 20px; margin: 0; color: var(--color-muted); }
+
+    .flip-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .flip {
+      min-height: 190px;
+      perspective: 1000px;
+      background: transparent;
+      box-shadow: none;
+      border: 0;
+      padding: 0;
+    }
+
+    .flip-inner {
+      height: 100%;
+      position: relative;
+      transition: transform 0.55s ease;
+      transform-style: preserve-3d;
+    }
+
+    .flip:hover .flip-inner { transform: rotateY(180deg); }
+    .flip-front, .flip-back {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      border-radius: var(--radius);
+      border: 1px solid var(--color-line);
+      background: var(--color-card);
+      box-shadow: var(--shadow-soft);
+      padding: 20px;
+      display: grid;
+      align-content: center;
+    }
+
+    .flip-front strong { font-size: 1.08rem; color: var(--color-primary); }
+    .flip-back { transform: rotateY(180deg); background: var(--color-primary); color: #fff; }
+
+    .calculator {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 16px;
+    }
+
+    label {
+      display: grid;
+      gap: 7px;
+      font-weight: 800;
+      color: var(--color-primary);
+    }
+
+    input, select {
+      width: 100%;
+      border: 1px solid var(--color-line);
+      border-radius: var(--radius);
+      padding: 12px 13px;
+      background: var(--color-card);
+      color: var(--color-text);
+      outline: 0;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--color-accent);
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent) 20%, transparent);
+    }
+
+    .result {
+      background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+      color: #fff;
+      border-radius: var(--radius);
+      padding: 18px;
+      display: grid;
+      gap: 8px;
+      align-content: center;
+    }
+
+    .result strong {
+      font-family: "JetBrains Mono", monospace;
+      color: var(--color-highlight);
+      font-size: 1.2rem;
+    }
+
+    .gallery {
+      columns: 4 230px;
+      column-gap: 16px;
+    }
+
+    .gallery figure {
+      break-inside: avoid;
+      margin: 0 0 16px;
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--radius);
+      cursor: zoom-in;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .gallery img {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      transition: transform 0.3s ease, filter 0.3s ease;
+    }
+
+    .gallery figure:hover img { transform: scale(1.05); filter: saturate(1.14); }
+    .gallery figcaption {
+      position: absolute;
+      inset: auto 0 0 0;
+      padding: 26px 14px 12px;
+      background: linear-gradient(0deg, rgba(0,0,0,0.72), transparent);
+      color: #fff;
+      font-weight: 800;
+    }
+
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 1200;
+      display: none;
+      place-items: center;
+      padding: 24px;
+      background: rgba(7, 19, 22, 0.88);
+    }
+
+    .lightbox.open { display: grid; }
+    .lightbox img {
+      max-height: 84vh;
+      border-radius: var(--radius);
+      box-shadow: 0 30px 90px rgba(0,0,0,0.45);
+    }
+
+    .news-card img, .product-card img {
+      height: 190px;
+      width: 100%;
+      object-fit: cover;
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+    }
+
+    .tag {
+      display: inline-flex;
+      width: fit-content;
+      border-radius: 999px;
+      padding: 5px 10px;
+      background: color-mix(in srgb, var(--color-highlight) 24%, transparent);
+      color: var(--color-primary);
+      font-weight: 900;
+      font-size: 0.76rem;
+      margin-bottom: 10px;
+    }
+
+    .back-to-top {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 900;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(12px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .back-to-top.visible {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+
+    footer {
+      background: var(--color-dark);
+      color: #DDF7F5;
+      padding: 56px 0 26px;
+    }
+
+    footer .grid { grid-template-columns: 1.3fr 0.8fr 1fr 1fr; }
+    footer a { display: block; color: #BEE9E5; margin: 7px 0; }
+    footer small { display: block; color: #9BCBC8; margin-top: 28px; }
+
+    .water-band {
+      background-attachment: fixed;
+      background-image: linear-gradient(135deg, rgba(10,79,78,0.9), rgba(13,27,42,0.9)), url("https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=1600&q=80&auto=format&fit=crop");
+      background-size: cover;
+      background-position: center;
+      color: #fff;
+    }
+
+    .water-band .section-head h2, .water-band .lead, .water-band .card p { color: #fff; }
+    .water-band .card { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); backdrop-filter: blur(10px); }
+    .water-band .card h3 { color: var(--color-highlight); }
+
+    @media (max-width: 1100px) {
+      .stat-grid, .feature-grid, .four-col { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .flow { grid-template-columns: repeat(3, minmax(130px, 1fr)); }
+      .flow .node:nth-child(3)::after, .flow .node:last-child::after { display: none; }
+      .gauge-grid, .three-col { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 860px) {
+      :root { --nav-height: 68px; }
+      .menu-toggle { display: inline-grid; }
+      .nav-links {
+        position: fixed;
+        inset: var(--nav-height) 0 auto 0;
+        max-height: calc(100vh - var(--nav-height));
+        overflow-y: auto;
+        display: none;
+        padding: 14px 22px 26px;
+        background: rgba(13, 27, 42, 0.96);
+        backdrop-filter: blur(16px);
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .nav-links.open { display: flex; }
+      .nav-links a { border-radius: var(--radius); padding: 12px 10px; }
+      .section-head, .two-col, .calculator, footer .grid { grid-template-columns: 1fr; }
+      .stat-grid, .feature-grid, .three-col, .four-col, .gauge-grid, .flip-grid { grid-template-columns: 1fr; }
+      section { padding: 70px 0; }
+      .hero { min-height: 920px; align-items: start; }
+      #map { min-height: 400px; }
+      .timeline-item { grid-template-columns: 1fr; gap: 6px; }
+      .flow { grid-template-columns: 1fr; }
+      .flow .node::after { display: none; }
+      .flip { min-height: 165px; }
+      .flip-inner, .flip-front, .flip-back { position: relative; }
+      .flip-back { display: none; }
+      .flip:hover .flip-inner { transform: none; }
+    }
+
+    @media (max-width: 520px) {
+      .container { width: min(100% - 24px, 1180px); }
+      .navbar { padding: 0 12px; }
+      h1 { font-size: clamp(3.1rem, 16vw, 4.7rem); }
+      .stat-card strong, .kpi strong { font-size: 1.8rem; }
+      .card, .stat-card { padding: 17px; }
+      .hero-actions { align-items: stretch; }
+      .btn { width: 100%; }
+      .chart-box { min-height: 260px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+      }
+      .water-band { background-attachment: scroll; }
+    }
+  </style>
+</head>
+<body>
+  <div class="loader" aria-live="polite"><div><div class="loader-fish">🐟</div><strong>Carregando TilápiaBR</strong></div></div>
+  <div class="progress" id="progress"></div>
+
+  <nav class="navbar" id="navbar" aria-label="Navegação principal">
+    <div class="nav-inner">
+      <a href="#inicio" class="brand"><i class="fa-solid fa-fish-fins"></i> TilápiaBR</a>
+      <div class="nav-links" id="navLinks">
+        <a href="#inicio">Início</a>
+        <a href="#historia">História</a>
+        <a href="#especie">Espécie</a>
+        <a href="#distribuicao">Distribuição</a>
+        <a href="#sistemas">Sistemas</a>
+        <a href="#reproducao">Reprodução</a>
+        <a href="#nutricao">Nutrição</a>
+        <a href="#agua">Água</a>
+        <a href="#mercado">Mercado</a>
+        <a href="#sustentabilidade">Sustentabilidade</a>
+        <a href="#produtos">Produtos</a>
+        <a href="#galeria">Galeria</a>
+        <a href="#faq">FAQ</a>
+        <a href="#noticias">Notícias</a>
+        <a href="#referencias">Referências</a>
+      </div>
+      <button class="icon-button" id="themeToggle" aria-label="Alternar tema" title="Alternar tema"><i class="fa-solid fa-moon"></i></button>
+      <button class="icon-button menu-toggle" id="menuToggle" aria-label="Abrir menu" title="Abrir menu"><i class="fa-solid fa-bars"></i></button>
+    </div>
+  </nav>
+
+  <header class="hero" id="inicio">
+    <canvas id="waveCanvas" aria-hidden="true"></canvas>
+    <div class="container hero-content">
+      <span class="eyebrow"><i class="fa-solid fa-water"></i> Aquicultura brasileira e FAO 2024</span>
+      <h1>Tilápia do Nilo</h1>
+      <p class="hero-subtitle"><em>Oreochromis niloticus</em> — O peixe que transformou a aquicultura brasileira</p>
+      <p class="hero-copy">Espécie rústica, produtiva e adaptável, a tilápia do Nilo ocupa posição central na segurança alimentar, na geração de renda e na modernização da piscicultura no Brasil.</p>
+      <div class="hero-actions">
+        <a class="btn" href="#historia"><i class="fa-solid fa-arrow-down"></i> Explorar</a>
+        <a class="btn secondary" href="#ferramentas"><i class="fa-solid fa-calculator"></i> Ferramentas</a>
+      </div>
+      <div class="stat-grid">
+        <article class="stat-card"><strong><span class="count" data-count="5.3" data-decimals="1">0</span> mi t</strong><span>Produção global em 2022</span></article>
+        <article class="stat-card"><strong><span class="count" data-count="4">0</span>ª</strong><span>Espécie aquática mais cultivada</span></article>
+        <article class="stat-card"><strong>+<span class="count" data-count="108">0</span> mil t</strong><span>Crescimento do Brasil em 2022</span></article>
+        <article class="stat-card"><strong>USD <span class="count" data-count="195">0</span> bi</strong><span>Comércio global aquático</span></article>
+      </div>
+    </div>
+    <a href="#historia" class="scroll-cue" aria-label="Ir para história"><i class="fa-solid fa-chevron-down"></i></a>
+  </header>
+
+  <main>
+    <section id="historia">
+      <div class="container">
+        <div class="section-head" data-aos="fade-up">
+          <div><span class="eyebrow">Origem e expansão</span><h2>Da África aos polos brasileiros</h2></div>
+          <p class="lead">Nativa dos grandes lagos africanos, a tilápia foi introduzida no Brasil em 1971 e encontrou no país clima, tecnologia e mercado para se tornar protagonista.</p>
+        </div>
+        <div class="grid two-col">
+          <article class="card" data-aos="fade-up">
+            <h3>Origem geográfica</h3>
+            <p>A espécie ocorre naturalmente na África Subsaariana, especialmente em sistemas como os lagos Vitória, Tanganyika e Malawi, ambientes que explicam sua plasticidade ecológica.</p>
+          </article>
+          <div class="timeline" data-aos="fade-up" data-aos-delay="120">
+            <div class="timeline-item"><span class="year">Origem</span><div>Lago Vitória e outros sistemas africanos.</div></div>
+            <div class="timeline-item"><span class="year">1971</span><div>Introdução no Brasil via DNOCS.</div></div>
+            <div class="timeline-item"><span class="year">1980s</span><div>Expansão inicial no Nordeste brasileiro.</div></div>
+            <div class="timeline-item"><span class="year">1990s</span><div>Programas de melhoramento genético, incluindo linhagem GIFT.</div></div>
+            <div class="timeline-item"><span class="year">2010s</span><div>Boom da tilapicultura, com Paraná e São Paulo em destaque.</div></div>
+            <div class="timeline-item"><span class="year">2022</span><div>Brasil responde por 22,1% do crescimento aquícola na América Latina e Caribe, segundo FAO 2024.</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="especie">
+      <div class="container">
+        <div class="section-head" data-aos="fade-up">
+          <div><span class="eyebrow">Biologia</span><h2>Características da espécie</h2></div>
+          <p class="lead">A combinação entre crescimento rápido, rusticidade, hábito alimentar flexível e reprodução eficiente explica sua adoção em diferentes sistemas de cultivo.</p>
+        </div>
+        <div class="grid two-col">
+          <article class="card" data-aos="fade-right">
+            <h3>Taxonomia</h3>
+            <table class="taxonomy">
+              <thead><tr><th>Categoria</th><th>Classificação</th></tr></thead>
+              <tbody>
+                <tr><td>Reino</td><td>Animalia</td></tr>
+                <tr><td>Filo</td><td>Chordata</td></tr>
+                <tr><td>Classe</td><td>Actinopterygii</td></tr>
+                <tr><td>Ordem</td><td>Perciformes</td></tr>
+                <tr><td>Família</td><td>Cichlidae</td></tr>
+                <tr><td>Gênero</td><td><em>Oreochromis</em></td></tr>
+                <tr><td>Espécie</td><td><em>O. niloticus</em></td></tr>
+              </tbody>
+            </table>
+          </article>
+          <div class="grid feature-grid">
+            <article class="card" data-aos="zoom-in"><div class="mini-icon"><i class="fa-solid fa-ruler"></i></div><h3>Porte</h3><p>Até 60 cm e 5 kg em condições favoráveis.</p></article>
+            <article class="card" data-aos="zoom-in"><div class="mini-icon"><i class="fa-solid fa-temperature-half"></i></div><h3>Temperatura</h3><p>Faixa ideal de cultivo entre 25 e 30°C.</p></article>
+            <article class="card" data-aos="zoom-in"><div class="mini-icon"><i class="fa-solid fa-droplet"></i></div><h3>Salinidade</h3><p>Tolerância registrada até 26 g/L, segundo FAO 2024.</p></article>
+            <article class="card" data-aos="zoom-in"><div class="mini-icon"><i class="fa-solid fa-leaf"></i></div><h3>Alimentação</h3><p>Onívora com forte aproveitamento vegetal.</p></article>
+            <article class="card" data-aos="zoom-in"><div class="mini-icon"><i class="fa-solid fa-repeat"></i></div><h3>Reprodução</h3><p>Incubação bucal feita pela fêmea.</p></article>
+            <article class="card" data-aos="zoom-in"><div class="mini-icon"><i class="fa-solid fa-bolt"></i></div><h3>Crescimento</h3><p>Alcança 500 g em 6 a 8 meses.</p></article>
+            <article class="card" data-aos="zoom-in"><div class="mini-icon"><i class="fa-solid fa-calendar"></i></div><h3>Longevidade</h3><p>Pode viver de 8 a 10 anos.</p></article>
+            <article class="card" data-aos="zoom-in"><div class="mini-icon"><i class="fa-solid fa-earth-americas"></i></div><h3>Rusticidade</h3><p>Tolera ampla variação ambiental.</p></article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="distribuicao">
+      <div class="container">
+        <div class="section-head" data-aos="fade-up">
+          <div><span class="eyebrow">Brasil produtivo</span><h2>Distribuição no território nacional</h2></div>
+          <p class="lead">A produção se concentra em polos com tecnologia, logística e reservatórios aptos para tanques-rede, viveiros e tanques escavados.</p>
+        </div>
+        <div class="grid two-col">
+          <div id="map" data-aos="fade-right" aria-label="Mapa interativo dos estados produtores"></div>
+          <aside class="grid" data-aos="fade-left">
+            <article class="card">
+              <h3>Ranking produtivo</h3>
+              <ol class="ranking">
+                <li><span>Paraná</span><span>Tanques escavados</span></li>
+                <li><span>São Paulo</span><span>Reservatórios e viveiros</span></li>
+                <li><span>Minas Gerais</span><span>Tanques-rede</span></li>
+                <li><span>Mato Grosso do Sul</span><span>Reservatórios</span></li>
+                <li><span>Ceará</span><span>Açudes</span></li>
+              </ol>
+            </article>
+            <article class="card chart-box">
+              <h3>Participação por região</h3>
+              <canvas id="regionChart" aria-label="Gráfico de pizza por região"></canvas>
+            </article>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section id="sistemas" class="water-band">
+      <div class="container">
+        <div class="section-head" data-aos="fade-up">
+          <div><span class="eyebrow">Tecnologia de cultivo</span><h2>Sistemas de produção</h2></div>
+          <p class="lead">Da piscicultura familiar ao sistema de recirculação, cada arranjo produtivo equilibra custo, densidade, controle ambiental e eficiência hídrica.</p>
+        </div>
+        <div class="tabs" data-aos="fade-up">
+          <button class="tab active" data-tab="escavados">Tanques escavados</button>
+          <button class="tab" data-tab="rede">Tanques-rede</button>
+          <button class="tab" data-tab="viveiros">Viveiros</button>
+          <button class="tab" data-tab="ras">RAS</button>
+          <button class="tab" data-tab="bioflocos">Bioflocos</button>
+          <button class="tab" data-tab="aquaponia">Aquaponia</button>
+        </div>
+        <article class="card" id="systemContent" data-aos="fade-up"></article>
+      </div>
+    </section>
+
+    <section id="reproducao">
+      <div class="container">
+        <div class="section-head" data-aos="fade-up">
+          <div><span class="eyebrow">Alevinagem</span><h2>Reprodução e reversão sexual</h2></div>
+          <p class="lead">A incubação bucal e a precocidade sexual exigem manejo reprodutivo rigoroso para padronizar lotes e evitar superpopulação.</p>
+        </div>
+        <div class="flow" data-aos="fade-up">
+          <article class="card node">Acasalamento</article>
+          <article class="card node">Desova</article>
+          <article class="card node">Incubação bucal</article>
+          <article class="card node">Larvas</article>
+          <article class="card node">Alevinos</article>
+          <article class="card node">Juvenis</article>
+        </div>
+        <div class="grid three-col" style="margin-top:18px">
+          <article class="card" data-aos="fade-up"><h3>Maturidade</h3><p>Machos aos 3 a 5 meses e fêmeas aos 4 a 6 meses, variando com temperatura e nutrição.</p></article>
+          <article class="card" data-aos="fade-up"><h3>Monossexo macho</h3><p>Uso técnico de 17-α-metiltestosterona na fase inicial, pois machos crescem 15 a 30% mais rápido.</p></article>
+          <article class="card" data-aos="fade-up"><h3>Temperatura</h3><p>A reprodução é favorecida entre 26 e 29°C, com água estável e baixa carga orgânica.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="nutricao">
+      <div class="container">
+        <div class="section-head" data-aos="fade-up">
+          <div><span class="eyebrow">Alimentação</span><h2>Nutrição por fase de cultivo</h2></div>
+          <p class="lead">A ração pode representar 60 a 70% do custo de produção, tornando conversão alimentar e manejo de arraçoamento pontos decisivos.</p>
+        </div>
+        <div class="grid two-col">
+          <article class="card" data-aos="fade-right">
+            <h3>Tabela nutricional</h3>
+            <table>
+              <thead><tr><th>Fase</th><th>Proteína</th><th>Frequência</th><th>Grânulo</th></tr></thead>
+              <tbody>
+                <tr><td>Larva 0-5 g</td><td>45-50%</td><td>6-8x/dia</td><td>Pó fino</td></tr>
+                <tr><td>Juvenil 5-50 g</td><td>32-36%</td><td>4-6x/dia</td><td>1,5-2 mm</td></tr>
+                <tr><td>Engorda 50-300 g</td><td>28-32%</td><td>3-4x/dia</td><td>3-4 mm</td></tr>
+                <tr><td>Final 300 g+</td><td>26-28%</td><td>2-3x/dia</td><td>6-8 mm</td></tr>
+              </tbody>
+            </table>
+          </article>
+          <article class="card chart-box" data-aos="fade-left">
+            <h3>Conversão alimentar ideal</h3>
+            <canvas id="feedChart"></canvas>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="agua">
+      <div class="container">
+        <div class="section-head" data-aos="fade-up">
+          <div><span class="eyebrow">Monitoramento</span><h2>Qualidade da água</h2></div>
+          <p class="lead">Oxigênio, pH, temperatura e compostos nitrogenados determinam desempenho, sanidade e bem-estar dos peixes.</p>
+        </div>
+        <div class="grid gauge-grid">
+          <article class="card chart-box"><h3>Temperatura 28°C</h3><canvas id="tempGauge"></canvas></article>
+          <article class="card chart-box"><h3>Oxigênio 6 mg/L</h3><canvas id="oxygenGauge"></canvas></article>
+          <article class="card chart-box"><h3>pH 7,8</h3><canvas id="phGauge"></canvas></article>
+        </div>
+        <div class="grid three-col" style="margin-top:18px">
+          <article class="card"><h3>Amônia total</h3><p>Ideal abaixo de 1,0 mg/L; níveis acima de 3,0 mg/L são críticos.</p></article>
+          <article class="card"><h3>Nitrito</h3><p>Ideal abaixo de 0,5 mg/L; acima de 1,0 mg/L há risco metabólico.</p></article>
+          <article class="card"><h3>Transparência</h3><p>Faixa de 30 a 40 cm ajuda a equilibrar plâncton, luz e oxigenação.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="sanidade">
+      <div class="container">
+        <div class="section-head" data-aos="fade-up">
+          <div><span class="eyebrow">Biosseguridade</span><h2>Sanidade aquícola</h2></div>
+          <p class="lead">A FAO 2024 destaca biosseguridade e controle de doenças como vias essenciais para uma aquicultura eficiente e resiliente.</p>
+        </div>
+        <div class="accordion">
+          <details open><summary>Bactérias</summary><p><em>Aeromonas hydrophila</em> pode causar úlceras; <em>Streptococcus</em> sp. está associado a alterações oculares, nado errático e mortalidade.</p></details>
+          <details><summary>Parasitas</summary><p><em>Ichthyophthirius</em> causa pontos brancos; monogeneas afetam brânquias; <em>Argulus</em> provoca irritação e feridas.</p></details>
+          <details><summary>Fungos</summary><p><em>Saprolegnia</em> sp. aparece como crescimento algodonoso em lesões, ovos ou peixes debilitados.</p></details>
+          <details><summary>Vírus</summary><p>TiLV, Tilapia Lake Virus, é uma preocupação global crescente que reforça quarentena e vigilância sanitária.</p></details>
+          <details><summary>Prevenção</summary><p>Quarentena, densidade adequada, limpeza de equipamentos, origem confiável de alevinos e qualidade da água reduzem risco sanitário.</p></details>
+        </div>
+      </div>
+    </section>
+
+    <section id="manejo">
+      <div class="container">
+        <div class="section-head" data-aos="fade-up">
+          <div><span class="eyebrow">Rotina produtiva</span><h2>Manejo da produção</h2></div>
+          <p class="lead">Manejo bem executado transforma potencial genético em ganho de peso, uniformidade e menor mortalidade.</p>
+        </div>
+        <div class="grid three-col">
+          <article class="card"><div class="mini-icon"><i class="fa-solid fa-seedling"></i></div><h3>Povoamento</h3><p>Define estoque, densidade inicial e meta de biomassa final.</p></article>
+          <article class="card"><div class="mini-icon"><i class="fa-solid fa-weight-scale"></i></div><h3>Biometria</h3><p>Pesagens periódicas ajustam ração, conversão e previsão de despesca.</p></article>
+          <article class="card"><div class="mini-icon"><i class="fa-solid fa-layer-group"></i></div><h3>Classificação</h3><p>Separação por tamanho diminui competição e melhora uniformidade.</p></article>
+          <article class="card"><div class="mini-icon"><i class="fa-solid fa-fish"></i></div><h3>Despesca</h3><p>Planejamento por mercado, peso-alvo e temperatura da água.</p></article>
+          <article class="card"><div class="mini-icon"><i class="fa-solid fa-truck-fast"></i></div><h3>Transporte</h3><p>Oxigenação, jejum, densidade e tempo de viagem precisam ser controlados.</p></article>
+          <article class="card"><div class="mini-icon"><i class="fa-solid fa-clipboard-check"></i></div><h3>Registros</h3><p>Histórico de lote, ração, mortalidade e água apoia decisões técnicas.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="cadeia" class="water-band">
+      <div class="container">
+        <div class="section-head" data-aos="fade-up">
+          <div><span class="eyebrow">Economia</span><h2>Cadeia produtiva</h2></div>
+          <p class="lead">A tilapicultura conecta genética, alevinagem, nutrição, engorda, processamento, varejo e exportação, gerando renda em vários elos.</p>
+        </div>
+        <div class="flow" data-aos="fade-up">
+          <article class="card node">Genética e reprodutores</article>
+          <article class="card node">Produção de alevinos</article>
+          <article class="card node">Fábricas de ração</article>
+          <article class="card node">Engorda</article>
+          <article class="card node">Processamento</article>
+          <article class="card node">Consumidor final</article>
+        </div>
+        <article class="card" style="margin-top:18px" data-aos="fade-up"><h3>Emprego global</h3><p>Segundo a FAO 2024, 61,8 milhões de pessoas trabalhavam no setor primário da pesca e aquicultura em 2022.</p></article>
+      </div>
+    </section>
+
+    <section id="mercado">
+      <div class="container">
+        <div class="section-head" data-aos="fade-up">
+          <div><span class="eyebrow">Dashboard</span><h2>Mercado brasileiro e global</h2></div>
+          <p class="lead">A FAO 2024 mostra a aquicultura como vetor central da Blue Transformation, com recordes de produção, comércio e participação no abastecimento mundial.</p>
+        </div>
+        <div class="grid four-col">
+          <article class="card kpi"><strong><span class="count" data-count="4">0</span>ª</strong><span>Mais cultivada no mundo</span></article>
+          <article class="card kpi"><strong><span class="count" data-count="5.3" data-decimals="1">0</span> mi t</strong><span>Tilápia do Nilo em 2022</span></article>
+          <article class="card kpi"><strong><span class="count" data-count="22.1" data-decimals="1">0</span>%</strong><span>Brasil no crescimento da AL</span></article>
+          <article class="card kpi"><strong><span class="count" data-count="223.2" data-decimals="1">0</span> mi t</strong><span>Produção aquática total</span></article>
+        </div>
+        <div class="grid three-col" style="margin-top:18px">
+          <article class="card chart-box"><h3>Tilápia no Brasil 2010-2022</h3><canvas id="productionChart"></canvas></article>
+          <article class="card chart-box"><h3>Crescimento na América Latina</h3><canvas id="latamChart"></canvas></article>
+          <article class="card chart-box"><h3>Piscicultura nacional</h3><canvas id="tilapiaShareChart"></canvas></article>
+        </div>
+        <article class="card" style="margin-top:18px"><h3>Projeção 2032</h3><p>A FAO 2024 projeta crescimento de 7,6% para a aquicultura brasileira entre 2022 e 2032, de 738 mil para 794 mil toneladas.</p></article>
+      </div>
+    </section>
+
+    <section id="legislacao">
+      <div class="container">
+        <div class="section-head" data-aos="fade-up">
+          <div><span class="eyebrow">Regras</span><h2>Legislação e governança</h2></div>
+          <p class="lead">Licenciamento, outorga, sanidade, rastreabilidade e controle de espécies exóticas estruturam a produção responsável.</p>
+        </div>
+        <div class="grid three-col">
+          <article class="card"><h3>Licenciamento ambiental</h3><p>Baseado em normas ambientais, avaliação de impactos e requisitos de instalação.</p></article>
+          <article class="card"><h3>Outorga de água</h3><p>Uso de água em tanques, viveiros e reservatórios depende de autorização do órgão competente.</p></article>
+          <article class="card"><h3>MAPA e sanidade</h3><p>Registro, inspeção e controle sanitário sustentam processamento e comercialização.</p></article>
+          <article class="card"><h3>Rastreabilidade</h3><p>A FAO 2024 aponta certificações e rastreabilidade como pilares da Blue Transformation.</p></article>
+          <article class="card"><h3>Bem-estar animal</h3><p>Densidade, manejo, transporte e abate devem reduzir estresse e mortalidade.</p></article>
+          <article class="card"><h3>Espécies exóticas</h3><p>Escapes para corpos d'água naturais exigem prevenção e barreiras de contenção.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="sustentabilidade">
+      <div class="container">
+        <div class="section-head" data-aos="fade-up">
+          <div><span class="eyebrow">ODS 14</span><h2>Sustentabilidade</h2></div>
+          <p class="lead">Sistemas aquícolas bem manejados podem produzir proteína de alta qualidade com menor pegada ambiental, desde que controlem efluentes, escapes e uso de insumos.</p>
+        </div>
+        <div class="grid three-col">
+          <article class="card"><div class="mini-icon"><i class="fa-solid fa-water"></i></div><h3>Vida na água</h3><p>A FAO é custodiante de 4 dos 10 indicadores do ODS 14.</p></article>
+          <article class="card"><div class="mini-icon"><i class="fa-solid fa-recycle"></i></div><h3>RAS e bioflocos</h3><p>Recirculação e comunidades microbianas reduzem descarte e consumo hídrico.</p></article>
+          <article class="card"><div class="mini-icon"><i class="fa-solid fa-filter"></i></div><h3>Efluentes</h3><p>Sedimentação, biofiltração e manejo de ração diminuem carga orgânica.</p></article>
+          <article class="card"><div class="mini-icon"><i class="fa-solid fa-shield-heart"></i></div><h3>Biodiversidade</h3><p>Por ser exótica, a tilápia exige contenção para evitar impactos ecológicos.</p></article>
+          <article class="card"><div class="mini-icon"><i class="fa-solid fa-certificate"></i></div><h3>Certificações</h3><p>ASC e GlobalG.A.P. ajudam a organizar boas práticas produtivas.</p></article>
+          <article class="card"><div class="mini-icon"><i class="fa-solid fa-earth-americas"></i></div><h3>Baixa pegada</h3><p>Sistemas aquáticos são reconhecidos pela FAO como parte de soluções alimentares com menor impacto.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="produtos">
+      <div class="container">
+        <div class="section-head" data-aos="fade-up">
+          <div><span class="eyebrow">Aproveitamento integral</span><h2>Produtos da tilápia</h2></div>
+          <p class="lead">Como o filé representa cerca de 30% do peso do peixe, subprodutos ampliam valor econômico e reduzem desperdício.</p>
+        </div>
+        <div class="grid four-col">
+          <article class="card product-card"><img src="https://images.unsplash.com/photo-1615141982883-c7ad0e69fd62?w=800&q=80&auto=format&fit=crop" alt="Filé de peixe preparado"><h3>Filé</h3><p>Principal produto industrializado para varejo e exportação.</p></article>
+          <article class="card product-card"><img src="https://images.unsplash.com/photo-1524704654690-b56c05c78a00?w=800&q=80&auto=format&fit=crop" alt="Peixes inteiros frescos"><h3>Peixe inteiro</h3><p>Mercados regionais, feiras e consumo local.</p></article>
+          <article class="card product-card"><img src="https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=800&q=80&auto=format&fit=crop" alt="Bolsa de couro artesanal"><h3>Couro e pele</h3><p>Moda, acessórios e bioindústria com alto valor agregado.</p></article>
+          <article class="card product-card"><img src="https://images.unsplash.com/photo-1550572017-edd951aa8f72?w=800&q=80&auto=format&fit=crop" alt="Frasco cosmético"><h3>Colágeno</h3><p>Aplicações cosméticas, farmacêuticas e biomateriais.</p></article>
+          <article class="card product-card"><img src="https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=800&q=80&auto=format&fit=crop" alt="Óleo em garrafa"><h3>Óleo</h3><p>Uso alimentar, industrial e suplementar.</p></article>
+          <article class="card product-card"><img src="https://images.unsplash.com/photo-1550258987-190a2d41a8ba?w=800&q=80&auto=format&fit=crop" alt="Ingredientes de ração"><h3>Farinha</h3><p>Subproduto para formulação de rações animais.</p></article>
+          <article class="card product-card"><img src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=800&q=80&auto=format&fit=crop" alt="Cápsulas de suplemento"><h3>Ômega-3</h3><p>Cápsulas e suplementos derivados do óleo.</p></article>
+          <article class="card product-card"><img src="https://images.unsplash.com/photo-1516685018646-5499d0a7d42f?w=800&q=80&auto=format&fit=crop" alt="Processamento de alimentos"><h3>Subprodutos</h3><p>Cabeça, espinha e vísceras aproveitadas industrialmente.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="ferramentas">
+      <div class="container">
+        <div class="section-head" data-aos="fade-up">
+          <div><span class="eyebrow">Ferramentas</span><h2>Calculadoras interativas</h2></div>
+          <p class="lead">Simulações rápidas para estimar arraçoamento, biomassa e curva de crescimento conforme temperatura.</p>
+        </div>
+        <div class="grid two-col">
+          <article class="card">
+            <h3>Calculadora de ração</h3>
+            <div class="calculator">
+              <label>Número de peixes<input id="fishCount" type="number" min="0" value="1200"></label>
+              <label>Peso médio (g)<input id="fishWeight" type="number" min="0" value="180"></label>
+              <label>Fase<select id="fishPhase"><option value="0.06">Larva</option><option value="0.045" selected>Juvenil</option><option value="0.032">Engorda</option><option value="0.022">Final</option></select></label>
+              <label>Temperatura (°C)<input id="waterTemp" type="number" min="0" value="28"></label>
+            </div>
+            <div class="result" id="feedResult" style="margin-top:16px"></div>
+          </article>
+          <article class="card">
+            <h3>Calculadora de biomassa</h3>
+            <div class="calculator">
+              <label>Volume do tanque (m³)<input id="tankVolume" type="number" min="0" value="80"></label>
+              <label>Densidade (kg/m³)<input id="density" type="number" min="0" value="35"></label>
+              <label>Peso médio (g)<input id="avgWeight" type="number" min="1" value="500"></label>
+            </div>
+            <div class="result" id="bioResult" style="margin-top:16px"></div>
+          </article>
+        </div>
+        <article class="card chart-box" style="margin-top:18px">
+          <h3>Curva de crescimento prevista</h3>
+          <label>Temperatura da água: <span id="tempLabel">28</span>°C<input id="growthTemp" type="range" min="22" max="32" value="28"></label>
+          <canvas id="growthChart"></canvas>
+        </article>
+      </div>
+    </section>
+
+    <section id="galeria">
+      <div class="container">
+        <div class="section-head" data-aos="fade-up">
+          <div><span class="eyebrow">Imagens</span><h2>Galeria de aquicultura</h2></div>
+          <p class="lead">Espécie, cultivo, processamento, produtos e infraestrutura em uma grade filtrável.</p>
+        </div>
+        <div class="filter-row" data-aos="fade-up">
+          <button class="filter active" data-filter="all">Todas</button>
+          <button class="filter" data-filter="especie">Espécie</button>
+          <button class="filter" data-filter="sistemas">Sistemas</button>
+          <button class="filter" data-filter="processamento">Processamento</button>
+          <button class="filter" data-filter="produtos">Produtos</button>
+          <button class="filter" data-filter="equipamentos">Equipamentos</button>
+        </div>
+        <div class="gallery" id="gallery"></div>
+      </div>
+    </section>
+
+    <section id="curiosidades">
+      <div class="container">
+        <div class="section-head" data-aos="fade-up">
+          <div><span class="eyebrow">Você sabia?</span><h2>Curiosidades científicas</h2></div>
+          <p class="lead">Fatos rápidos para enriquecer a apresentação acadêmica com detalhes memoráveis.</p>
+        </div>
+        <div class="grid flip-grid">
+          <article class="flip"><div class="flip-inner"><div class="flip-front"><strong>Incubação bucal</strong></div><div class="flip-back">A fêmea carrega ovos e larvas na boca por 1 a 2 semanas.</div></div></article>
+          <article class="flip"><div class="flip-inner"><div class="flip-front"><strong>Crescimento recordista</strong></div><div class="flip-back">Pode crescer perto de 1 g/dia em condições ideais.</div></div></article>
+          <article class="flip"><div class="flip-inner"><div class="flip-front"><strong>Salinidade</strong></div><div class="flip-back">Tolera até 26 g/L, conforme dados citados da FAO 2024.</div></div></article>
+          <article class="flip"><div class="flip-inner"><div class="flip-front"><strong>4ª global</strong></div><div class="flip-back">Está entre as espécies aquáticas mais produzidas do planeta.</div></div></article>
+          <article class="flip"><div class="flip-inner"><div class="flip-front"><strong>Mais de 70 países</strong></div><div class="flip-back">A tilápia é cultivada comercialmente em dezenas de países.</div></div></article>
+          <article class="flip"><div class="flip-inner"><div class="flip-front"><strong>Egito</strong></div><div class="flip-back">A tilápia domina a aquicultura em regiões áridas egípcias.</div></div></article>
+          <article class="flip"><div class="flip-inner"><div class="flip-front"><strong>Reversão sexual</strong></div><div class="flip-back">Tecnologia usada para formar lotes majoritariamente machos.</div></div></article>
+          <article class="flip"><div class="flip-inner"><div class="flip-front"><strong>Couro de tilápia</strong></div><div class="flip-back">É usado em bolsas, calçados e itens de luxo sustentáveis.</div></div></article>
+          <article class="flip"><div class="flip-inner"><div class="flip-front"><strong>Filé de 30%</strong></div><div class="flip-back">O filé costuma representar cerca de 30% do peso total.</div></div></article>
+          <article class="flip"><div class="flip-inner"><div class="flip-front"><strong>Nome científico</strong></div><div class="flip-back"><em>Oreochromis niloticus</em> remete ao gênero africano e ao Nilo.</div></div></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq">
+      <div class="container">
+        <div class="section-head" data-aos="fade-up">
+          <div><span class="eyebrow">Perguntas</span><h2>FAQ</h2></div>
+          <p class="lead">Respostas objetivas para os pontos mais comuns em sala de aula e discussão técnica.</p>
+        </div>
+        <div class="accordion">
+          <details open><summary>A tilápia é nativa do Brasil?</summary><p>Não. É originária da África e foi introduzida no Brasil em 1971.</p></details>
+          <details><summary>Quanto tempo leva para atingir o peso de abate?</summary><p>Em boas condições, atinge 500 a 700 g em 6 a 8 meses.</p></details>
+          <details><summary>Qual a temperatura ideal de cultivo?</summary><p>Entre 25 e 30°C; abaixo de 15°C o crescimento cai muito e acima de 35°C há risco severo.</p></details>
+          <details><summary>Quanto vive uma tilápia?</summary><p>Na natureza pode viver 8 a 10 anos; em cultivo o ciclo comercial costuma ser de 6 a 10 meses.</p></details>
+          <details><summary>Qual o peso ideal para comercialização?</summary><p>Para filé, geralmente 700 g a 1,2 kg; para peixe inteiro, 400 a 800 g.</p></details>
+          <details><summary>A tilápia é um risco ambiental?</summary><p>Sim, por ser exótica. Escapes podem afetar biodiversidade nativa, exigindo contenção e licenciamento.</p></details>
+          <details><summary>Qual a diferença entre macho e fêmea na produção?</summary><p>Machos crescem 15 a 30% mais rápido, por isso lotes monossexo são comuns.</p></details>
+          <details><summary>Como calcular a quantidade de ração?</summary><p>Usa-se percentual da biomassa diária, normalmente entre 2 e 6%, ajustando por fase, temperatura e consumo observado.</p></details>
+          <details><summary>Tilápia pode ser cultivada em água salgada?</summary><p>Ela tolera salinidades elevadas, mas o desempenho ideal ocorre em água doce.</p></details>
+          <details><summary>Quais certificações apoiam exportação?</summary><p>ASC, GlobalG.A.P., conformidade MAPA e inspeção sanitária são referências importantes.</p></details>
+          <details><summary>O Brasil exporta tilápia?</summary><p>Sim, com destaque para filés e produtos congelados destinados a mercados internacionais.</p></details>
+          <details><summary>O que é o relatório FAO 2024?</summary><p>É o relatório global da FAO sobre pesca e aquicultura, intitulado <em>The State of World Fisheries and Aquaculture 2024</em>.</p></details>
+        </div>
+      </div>
+    </section>
+
+    <section id="noticias">
+      <div class="container">
+        <div class="section-head" data-aos="fade-up">
+          <div><span class="eyebrow">Feed acadêmico</span><h2>Notícias e tendências</h2></div>
+          <p class="lead">Cards estáticos com temas atuais para contextualizar inovação, mercado e sustentabilidade.</p>
+        </div>
+        <div class="grid three-col">
+          <article class="card news-card"><img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80&auto=format&fit=crop" alt="Mar aberto"><span class="tag">FAO 2024</span><h3>Aquicultura supera a pesca extrativista</h3><p>Em 2022, a aquicultura respondeu por 51% da produção de animais aquáticos.</p></article>
+          <article class="card news-card"><img src="https://images.unsplash.com/photo-1569402928543-87ca8e9a5ba9?w=800&q=80&auto=format&fit=crop" alt="Peixe em água limpa"><span class="tag">Mercado</span><h3>Brasil impulsiona crescimento regional</h3><p>O país somou 108 mil toneladas ao crescimento aquícola recente na América Latina.</p></article>
+          <article class="card news-card"><img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&q=80&auto=format&fit=crop" alt="Paisagem rural com água"><span class="tag">Tecnologia</span><h3>Bioflocos ganham escala</h3><p>Sistemas BFT reduzem renovação de água e transformam microbiota em aliada.</p></article>
+          <article class="card news-card"><img src="https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=800&q=80&auto=format&fit=crop" alt="Bolsa de couro"><span class="tag">Subprodutos</span><h3>Couro de tilápia chega à moda</h3><p>A pele agrega valor e fortalece o aproveitamento integral.</p></article>
+          <article class="card news-card"><img src="https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b?w=800&q=80&auto=format&fit=crop" alt="Lâmpada e inovação"><span class="tag">Pesquisa</span><h3>Rações de menor impacto</h3><p>Novos ingredientes buscam reduzir custo e pressão sobre recursos marinhos.</p></article>
+          <article class="card news-card"><img src="https://images.unsplash.com/photo-1497436072909-f5e4be1d7b2b?w=800&q=80&auto=format&fit=crop" alt="Ambiente natural preservado"><span class="tag">ODS 14</span><h3>Aquicultura e metas ambientais</h3><p>Boas práticas ajudam a conciliar produção, renda e conservação.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="referencias">
+      <div class="container">
+        <div class="section-head" data-aos="fade-up">
+          <div><span class="eyebrow">Fontes</span><h2>Referências</h2></div>
+          <p class="lead">Base documental usada para dados, conceitos e contextualização técnico-científica.</p>
+        </div>
+        <div class="grid three-col">
+          <article class="card"><h3>FAO 2024</h3><p><em>The State of World Fisheries and Aquaculture 2024 - Blue Transformation in action</em>. Rome. DOI: 10.4060/cd0683en.</p></article>
+          <article class="card"><h3>Embrapa</h3><p>Embrapa Pesca e Aquicultura: pesquisa aplicada, sistemas produtivos e manejo aquícola.</p></article>
+          <article class="card"><h3>Peixe BR</h3><p>Associação Brasileira da Piscicultura: anuários e informações setoriais da piscicultura nacional.</p></article>
+          <article class="card"><h3>MAPA</h3><p>Ministério da Agricultura e Pecuária: normas sanitárias, registro e inspeção.</p></article>
+          <article class="card"><h3>FishStatJ</h3><p>FAO Global Fisheries Statistics: base de estatísticas globais de pesca e aquicultura.</p></article>
+          <article class="card"><h3>Moraes-Filho & Alves, 2021</h3><p>Referência sobre pele de tilápia citada no relatório FAO 2024.</p></article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="grid">
+        <div><h3><i class="fa-solid fa-fish-fins"></i> TilápiaBR</h3><p>Site acadêmico sobre a tilápia do Nilo, sua biologia, produção, mercado e sustentabilidade no Brasil.</p></div>
+        <div><h3>Navegação</h3><a href="#especie">Espécie</a><a href="#mercado">Mercado</a><a href="#ferramentas">Ferramentas</a><a href="#referencias">Referências</a></div>
+        <div><h3>Dados FAO 2024</h3><p>5,3 milhões t de tilápia; 130,9 milhões t de aquicultura; USD 195 bilhões em comércio aquático.</p></div>
+        <div><h3>Créditos</h3><p>Desenvolvido para apresentação acadêmica. Dados: FAO 2024, Embrapa, Peixe BR e MAPA.</p></div>
+      </div>
+      <small>© 2026 TilápiaBR | Conteúdo educativo para uso universitário.</small>
+    </div>
+  </footer>
+
+  <button class="icon-button back-to-top" id="backToTop" aria-label="Voltar ao topo" title="Voltar ao topo"><i class="fa-solid fa-fish-fins"></i></button>
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Imagem ampliada"><img src="" alt=""></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  <script>
+    const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const $ = (selector, parent = document) => parent.querySelector(selector);
+    const $$ = (selector, parent = document) => [...parent.querySelectorAll(selector)];
+
+    const hideLoader = () => $(".loader").classList.add("hidden");
+    requestAnimationFrame(() => setTimeout(hideLoader, prefersReduced ? 0 : 900));
+    document.addEventListener("DOMContentLoaded", hideLoader, { once: true });
+    window.addEventListener("load", hideLoader, { once: true });
+
+    const savedTheme = localStorage.getItem("tilapia-theme");
+    if (savedTheme) document.documentElement.dataset.theme = savedTheme;
+    $("#themeToggle").addEventListener("click", () => {
+      const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+      document.documentElement.dataset.theme = next;
+      localStorage.setItem("tilapia-theme", next);
+      $("#themeToggle i").className = next === "dark" ? "fa-solid fa-sun" : "fa-solid fa-moon";
+    });
+
+    $("#menuToggle").addEventListener("click", () => {
+      $("#navLinks").classList.toggle("open");
+      document.body.classList.toggle("nav-open");
+    });
+
+    $$("#navLinks a").forEach(link => link.addEventListener("click", () => {
+      $("#navLinks").classList.remove("open");
+      document.body.classList.remove("nav-open");
+    }));
+
+    const sections = $$("header[id], main section[id]");
+    const navLinks = $$(".nav-links a");
+    function onScroll() {
+      const max = document.documentElement.scrollHeight - innerHeight;
+      $("#progress").style.width = `${Math.max(0, scrollY / max * 100)}%`;
+      $("#navbar").classList.toggle("scrolled", scrollY > 35);
+      $("#backToTop").classList.toggle("visible", scrollY > 300);
+      const current = sections.findLast(section => scrollY + 120 >= section.offsetTop);
+      if (current) {
+        navLinks.forEach(link => link.classList.toggle("active", link.getAttribute("href") === `#${current.id}`));
+      }
+    }
+    addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    $("#backToTop").addEventListener("click", () => scrollTo({ top: 0, behavior: prefersReduced ? "auto" : "smooth" }));
+
+    if (window.AOS) AOS.init({ duration: prefersReduced ? 0 : 760, once: true, offset: 80 });
+
+    function animateCount(el) {
+      const target = Number(el.dataset.count || 0);
+      const decimals = Number(el.dataset.decimals || 0);
+      const duration = prefersReduced ? 1 : 1300;
+      const start = performance.now();
+      const step = now => {
+        const progress = Math.min((now - start) / duration, 1);
+        const value = target * (1 - Math.pow(1 - progress, 3));
+        el.textContent = value.toLocaleString("pt-BR", { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+        if (progress < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    }
+    const countObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && !entry.target.dataset.done) {
+          entry.target.dataset.done = "true";
+          animateCount(entry.target);
+        }
+      });
+    }, { threshold: 0.45 });
+    $$(".count").forEach(el => countObserver.observe(el));
+
+    const canvas = $("#waveCanvas");
+    const ctx = canvas.getContext("2d");
+    let particles = [];
+    function resizeCanvas() {
+      canvas.width = innerWidth * devicePixelRatio;
+      canvas.height = canvas.offsetHeight * devicePixelRatio;
+      ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+      particles = Array.from({ length: Math.min(90, Math.floor(innerWidth / 16)) }, () => ({
+        x: Math.random() * innerWidth,
+        y: Math.random() * canvas.offsetHeight,
+        r: Math.random() * 2.8 + 0.8,
+        s: Math.random() * 0.55 + 0.18
+      }));
+    }
+    resizeCanvas();
+    addEventListener("resize", resizeCanvas);
+    let t = 0;
+    function drawWaves() {
+      const h = canvas.offsetHeight;
+      ctx.clearRect(0, 0, innerWidth, h);
+      for (let layer = 0; layer < 4; layer++) {
+        ctx.beginPath();
+        const yBase = h * (0.52 + layer * 0.08);
+        ctx.moveTo(0, h);
+        for (let x = 0; x <= innerWidth; x += 12) {
+          const y = yBase + Math.sin(x * 0.008 + t + layer) * (18 + layer * 9) + Math.cos(x * 0.014 + t * 0.7) * 10;
+          ctx.lineTo(x, y);
+        }
+        ctx.lineTo(innerWidth, h);
+        ctx.closePath();
+        ctx.fillStyle = `rgba(78, 205, 196, ${0.08 + layer * 0.025})`;
+        ctx.fill();
+      }
+      particles.forEach(p => {
+        p.y -= p.s;
+        p.x += Math.sin(t + p.y * 0.01) * 0.2;
+        if (p.y < -10) { p.y = h + 10; p.x = Math.random() * innerWidth; }
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(255,255,255,0.32)";
+        ctx.fill();
+      });
+      t += 0.012;
+      if (!prefersReduced) requestAnimationFrame(drawWaves);
+    }
+    drawWaves();
+
+    const systemData = {
+      escavados: ["Tanques escavados", "Estruturas em solo com densidade típica de 1 a 3 kg/m². Têm custo moderado, bom controle operacional e ampla adoção em propriedades rurais."],
+      rede: ["Tanques-rede", "Gaiolas instaladas em reservatórios e açudes. Permitem alta troca de água e são importantes no Nordeste, mas exigem atenção a licenciamento e carga orgânica."],
+      viveiros: ["Viveiros", "Sistemas simples e de baixo custo, adequados a pequenos produtores e projetos de base familiar."],
+      ras: ["Sistema de Recirculação (RAS)", "Alta tecnologia com filtros mecânicos e biológicos. Reduz consumo de água e aumenta controle ambiental, em linha com inovação citada pela FAO 2024."],
+      bioflocos: ["Bioflocos (BFT)", "Comunidade microbiana ajuda a controlar compostos nitrogenados e pode complementar a nutrição, reduzindo dependência de proteína externa."],
+      aquaponia: ["Aquaponia", "Integra peixe e plantas: resíduos nitrogenados alimentam vegetais, que ajudam a depurar a água. A FAO cita aquaponia como solução integrada em regiões áridas."]
+    };
+    function setSystem(key) {
+      const [title, text] = systemData[key];
+      $("#systemContent").innerHTML = `<div class="mini-icon"><i class="fa-solid fa-fish"></i></div><h3>${title}</h3><p>${text}</p>`;
+      $$(".tab").forEach(btn => btn.classList.toggle("active", btn.dataset.tab === key));
+    }
+    $$(".tab").forEach(btn => btn.addEventListener("click", () => setSystem(btn.dataset.tab)));
+    setSystem("escavados");
+
+    const chartColor = () => getComputedStyle(document.documentElement).getPropertyValue("--color-primary").trim();
+    const accent = () => getComputedStyle(document.documentElement).getPropertyValue("--color-accent").trim();
+    const highlight = () => getComputedStyle(document.documentElement).getPropertyValue("--color-highlight").trim();
+    const tooltip = { callbacks: { label: ctx => `${ctx.dataset.label || ctx.label}: ${ctx.formattedValue}` } };
+    function makeChart(id, config) {
+      const el = document.getElementById(id);
+      return el ? new Chart(el, config) : null;
+    }
+    makeChart("regionChart", { type: "doughnut", data: { labels: ["Sul", "Sudeste", "Centro-Oeste", "Nordeste", "Norte"], datasets: [{ data: [38, 24, 18, 17, 3], backgroundColor: [chartColor(), accent(), highlight(), "#1B8A7A", "#6B9E9B"] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { tooltip } } });
+    makeChart("feedChart", { type: "line", data: { labels: ["Larva", "Juvenil", "Engorda", "Final"], datasets: [{ label: "CA mínima", data: [1.2, 1.25, 1.4, 1.55], borderColor: accent(), tension: 0.4 }, { label: "CA máxima", data: [1.5, 1.6, 1.75, 1.8], borderColor: highlight(), tension: 0.4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { tooltip } } });
+    makeChart("productionChart", { type: "line", data: { labels: ["2010","2012","2014","2016","2018","2020","2022"], datasets: [{ label: "Mil toneladas", data: [155, 190, 250, 330, 400, 486, 594], borderColor: chartColor(), backgroundColor: "rgba(78,205,196,0.18)", fill: true, tension: 0.42 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { tooltip } } });
+    makeChart("latamChart", { type: "bar", data: { labels: ["Ecuador", "Brasil", "Colombia", "Chile"], datasets: [{ label: "Crescimento 2022 (mil t)", data: [348.4, 108, 25.6, 22.7], backgroundColor: [accent(), chartColor(), highlight(), "#6B9E9B"] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { tooltip } } });
+    makeChart("tilapiaShareChart", { type: "doughnut", data: { labels: ["Tilápia", "Outros peixes"], datasets: [{ data: [65, 35], backgroundColor: [chartColor(), "#C7E9E6"] }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { tooltip } } });
+
+    function gauge(id, value, max, color) {
+      makeChart(id, { type: "doughnut", data: { labels: ["Atual", "Restante"], datasets: [{ data: [value, Math.max(max - value, 0)], backgroundColor: [color, "rgba(107,158,155,0.25)"], circumference: 180, rotation: 270 }] }, options: { responsive: true, maintainAspectRatio: false, cutout: "72%", plugins: { tooltip } } });
+    }
+    gauge("tempGauge", 28, 40, highlight());
+    gauge("oxygenGauge", 6, 10, accent());
+    gauge("phGauge", 7.8, 14, chartColor());
+
+    let growthChart = makeChart("growthChart", {
+      type: "line",
+      data: { labels: Array.from({ length: 13 }, (_, i) => `${i * 2}s`), datasets: [{ label: "Peso previsto (g)", data: [], borderColor: chartColor(), backgroundColor: "rgba(78,205,196,0.18)", fill: true, tension: 0.42 }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { tooltip } }
+    });
+    function updateGrowth() {
+      const temp = Number($("#growthTemp").value);
+      $("#tempLabel").textContent = temp;
+      const tempFactor = Math.max(0.6, 1 - Math.abs(28 - temp) * 0.065);
+      growthChart.data.datasets[0].data = Array.from({ length: 13 }, (_, i) => Math.round(18 + Math.pow(i, 1.55) * 14 * tempFactor));
+      growthChart.update();
+    }
+    $("#growthTemp").addEventListener("input", updateGrowth);
+    updateGrowth();
+
+    function updateCalculators() {
+      const count = Math.max(0, Number($("#fishCount").value));
+      const weight = Math.max(0, Number($("#fishWeight").value));
+      const phaseRate = Number($("#fishPhase").value);
+      const temp = Number($("#waterTemp").value);
+      const tempAdjust = temp < 24 ? 0.75 : temp > 31 ? 0.85 : 1;
+      const biomassKg = count * weight / 1000;
+      const dailyKg = biomassKg * phaseRate * tempAdjust;
+      const meals = phaseRate >= 0.05 ? 6 : phaseRate >= 0.035 ? 4 : 3;
+      $("#feedResult").innerHTML = `<span>Biomassa: <strong>${biomassKg.toFixed(1)} kg</strong></span><span>Ração diária: <strong>${dailyKg.toFixed(2)} kg</strong></span><span>Por refeição: <strong>${(dailyKg / meals || 0).toFixed(2)} kg</strong></span><span>Custo diário: <strong>R$ ${(dailyKg * 3.5).toFixed(2)}</strong></span><span>Projeção mensal: <strong>R$ ${(dailyKg * 3.5 * 30).toFixed(2)}</strong></span>`;
+      const volume = Math.max(0, Number($("#tankVolume").value));
+      const density = Math.max(0, Number($("#density").value));
+      const avgWeight = Math.max(1, Number($("#avgWeight").value));
+      const recommended = Math.floor((volume * density) / (avgWeight / 1000));
+      $("#bioResult").innerHTML = `<span>Biomassa alvo: <strong>${(volume * density).toFixed(1)} kg</strong></span><span>Número recomendado: <strong>${recommended.toLocaleString("pt-BR")} peixes</strong></span>`;
+    }
+    ["fishCount","fishWeight","fishPhase","waterTemp","tankVolume","density","avgWeight"].forEach(id => $(`#${id}`).addEventListener("input", updateCalculators));
+    updateCalculators();
+
+    const images = [
+      ["especie", "Tilápias em água limpa", "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&q=80&auto=format&fit=crop"],
+      ["sistemas", "Aquicultura em tanques", "https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=800&q=80&auto=format&fit=crop"],
+      ["especie", "Peixe em cardume", "https://images.unsplash.com/photo-1524704654690-b56c05c78a00?w=800&q=80&auto=format&fit=crop"],
+      ["processamento", "Produto de pescado", "https://images.unsplash.com/photo-1615141982883-c7ad0e69fd62?w=800&q=80&auto=format&fit=crop"],
+      ["produtos", "Peixe preparado", "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=800&q=80&auto=format&fit=crop"],
+      ["equipamentos", "Tecnologia de laboratório", "https://images.unsplash.com/photo-1581093458791-9d42cc030d4d?w=800&q=80&auto=format&fit=crop"],
+      ["sistemas", "Reservatório produtivo", "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&q=80&auto=format&fit=crop"],
+      ["produtos", "Cápsulas e suplementos", "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=800&q=80&auto=format&fit=crop"],
+      ["processamento", "Alimentos frescos", "https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&q=80&auto=format&fit=crop"],
+      ["equipamentos", "Medição técnica", "https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b?w=800&q=80&auto=format&fit=crop"],
+      ["sistemas", "Água e produção rural", "https://images.unsplash.com/photo-1497436072909-f5e4be1d7b2b?w=800&q=80&auto=format&fit=crop"],
+      ["produtos", "Óleo e subprodutos", "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=800&q=80&auto=format&fit=crop"]
+    ];
+    function renderGallery(filter = "all") {
+      $("#gallery").innerHTML = images.filter(([cat]) => filter === "all" || cat === filter).map(([cat, alt, src]) => `<figure data-cat="${cat}"><img src="${src}" alt="${alt}" loading="lazy"><figcaption>${alt}</figcaption></figure>`).join("");
+      $$("#gallery figure").forEach(fig => fig.addEventListener("click", () => {
+        const img = $("img", fig);
+        $("#lightbox img").src = img.src;
+        $("#lightbox img").alt = img.alt;
+        $("#lightbox").classList.add("open");
+      }));
+    }
+    $$(".filter").forEach(btn => btn.addEventListener("click", () => {
+      $$(".filter").forEach(item => item.classList.remove("active"));
+      btn.classList.add("active");
+      renderGallery(btn.dataset.filter);
+    }));
+    renderGallery();
+    $("#lightbox").addEventListener("click", () => $("#lightbox").classList.remove("open"));
+
+    if (window.L) {
+      const map = L.map("map", { scrollWheelZoom: false }).setView([-15.8, -47.9], 4);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 7, attribution: "&copy; OpenStreetMap" }).addTo(map);
+      [
+        ["Paraná", -24.89, -51.55, "Maior produtor nacional; tanques escavados e integração."],
+        ["São Paulo", -22.19, -48.79, "Reservatórios, viveiros e forte mercado consumidor."],
+        ["Minas Gerais", -18.51, -44.55, "Tanques-rede e sistemas em reservatórios."],
+        ["Mato Grosso do Sul", -20.77, -54.78, "Reservatórios e produção empresarial."],
+        ["Mato Grosso", -12.68, -56.92, "Expansão em viveiros e tanques escavados."],
+        ["Goiás", -15.98, -49.86, "Cerrado com polos aquícolas em crescimento."],
+        ["Ceará", -5.2, -39.53, "Tanques-rede em açudes e reservatórios."],
+        ["Pernambuco", -8.38, -37.86, "Produção regional e polos no semiárido."],
+        ["Bahia", -12.58, -41.7, "Reservatórios, viveiros e mercado nordestino."]
+      ].forEach(([name, lat, lng, text]) => L.marker([lat, lng]).addTo(map).bindPopup(`<strong>${name}</strong><br>${text}`));
+    }
+  </script>
+</body>
+</html>
