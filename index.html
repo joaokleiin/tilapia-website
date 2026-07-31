@@ -59,8 +59,6 @@
       transition: background 0.25s ease, color 0.25s ease;
     }
 
-    body.nav-open { overflow: hidden; }
-
     a { color: inherit; text-decoration: none; }
     img { max-width: 100%; display: block; }
     button, input, select { font: inherit; }
@@ -108,64 +106,162 @@
 
     .navbar {
       position: fixed;
-      inset: 0 0 auto 0;
-      height: var(--nav-height);
+      left: clamp(14px, 2vw, 28px);
+      top: 50%;
+      width: 68px;
+      max-height: calc(100vh - 48px);
       z-index: 999;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0 24px;
-      color: #fff;
-      transition: background 0.25s ease, box-shadow 0.25s ease, color 0.25s ease;
+      padding: 10px;
+      color: var(--color-text);
+      background: rgba(255, 255, 255, 0.22);
+      border: 1px solid rgba(255, 255, 255, 0.34);
+      border-radius: 22px;
+      backdrop-filter: blur(18px);
+      box-shadow: 0 20px 54px rgba(13, 27, 42, 0.18);
+      transform: translateY(-50%);
+      transition: width 0.24s ease, background 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    }
+
+    .navbar:hover, .navbar:focus-within {
+      width: min(216px, calc(100vw - 28px));
     }
 
     .navbar.scrolled, [data-theme="dark"] .navbar {
-      background: rgba(13, 27, 42, 0.86);
-      backdrop-filter: blur(16px);
-      box-shadow: 0 12px 34px rgba(0, 0, 0, 0.18);
+      background: rgba(13, 27, 42, 0.72);
+      border-color: rgba(78, 205, 196, 0.22);
+      box-shadow: 0 20px 54px rgba(0, 0, 0, 0.24);
+      color: #fff;
     }
 
     .nav-inner {
-      width: min(1220px, 100%);
+      position: relative;
+      width: 100%;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 20px;
+      gap: 10px;
+    }
+
+    .navbar:hover .nav-inner,
+    .navbar:focus-within .nav-inner {
+      align-items: stretch;
     }
 
     .brand {
       display: inline-flex;
       align-items: center;
       gap: 10px;
+      width: 100%;
+      min-height: 42px;
+      padding: 8px 10px;
       font-weight: 800;
       letter-spacing: 0;
       white-space: nowrap;
+      border-bottom: 1px solid rgba(10, 79, 78, 0.14);
     }
 
     .brand i { color: var(--color-highlight); }
+    .brand span { display: none; }
+    .navbar:hover .brand span,
+    .navbar:focus-within .brand span { display: inline; }
+    [data-theme="dark"] .brand { border-bottom-color: rgba(255, 255, 255, 0.12); }
 
     .nav-links {
-      margin-left: auto;
-      display: flex;
-      align-items: center;
-      gap: 2px;
-      overflow-x: auto;
+      --active-top: 0px;
+      --active-left: 0px;
+      --active-width: 0px;
+      --active-height: 0px;
+      position: relative;
+      width: 100%;
+      display: grid;
+      gap: 3px;
+      max-height: min(560px, calc(100vh - 190px));
+      overflow-y: auto;
+      padding: 2px;
       scrollbar-width: none;
     }
 
     .nav-links::-webkit-scrollbar { display: none; }
 
     .nav-links a {
-      padding: 10px 11px;
-      border-radius: 999px;
-      font-size: 0.82rem;
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1fr;
+      align-items: center;
+      justify-items: center;
+      gap: 10px;
+      min-height: 38px;
+      padding: 8px 11px;
+      border-radius: 14px;
+      font-size: 0.8rem;
       font-weight: 700;
-      opacity: 0.9;
+      color: color-mix(in srgb, var(--color-primary), var(--color-text) 35%);
+      outline: none;
       white-space: nowrap;
+      transition: color 0.2s ease, transform 0.2s ease;
     }
 
-    .nav-links a.active, .nav-links a:hover {
-      background: rgba(78, 205, 196, 0.18);
+    .navbar:hover .nav-links a,
+    .navbar:focus-within .nav-links a {
+      grid-template-columns: 24px minmax(0, 1fr);
+      justify-items: stretch;
+    }
+
+    .nav-links a span { display: none; }
+    .navbar:hover .nav-links a span,
+    .navbar:focus-within .nav-links a span { display: inline; }
+
+    .nav-links a i {
+      font-size: 0.95rem;
+      text-align: center;
+      color: var(--color-secondary);
+    }
+
+    .nav-links a.active, .nav-links a:hover, .nav-links a:focus-visible {
+      color: var(--color-primary);
+    }
+
+    .nav-links a.active {
+      transform: translateX(2px);
+    }
+
+    .nav-links a:focus-visible {
+      box-shadow: 0 0 0 2px rgba(247, 201, 72, 0.72);
+    }
+
+    .nav-indicator {
+      position: absolute;
+      left: 2px;
+      top: 0;
+      width: calc(100% - 4px);
+      height: var(--active-height);
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(78, 205, 196, 0.24), rgba(247, 201, 72, 0.22));
+      border: 1px solid rgba(78, 205, 196, 0.28);
+      box-shadow: 0 10px 24px rgba(13, 27, 42, 0.12);
+      transform: translateY(var(--active-top));
+      transition: transform 0.32s ease, height 0.32s ease, width 0.32s ease;
+      pointer-events: none;
+    }
+
+    [data-theme="dark"] .nav-links a {
+      color: #DDF7F5;
+    }
+
+    [data-theme="dark"] .nav-links a i {
+      color: var(--color-accent);
+    }
+
+    [data-theme="dark"] .nav-links a.active,
+    [data-theme="dark"] .nav-links a:hover,
+    [data-theme="dark"] .nav-links a:focus-visible {
       color: #fff;
+    }
+
+    [data-theme="dark"] .nav-indicator {
+      background: linear-gradient(135deg, rgba(78, 205, 196, 0.22), rgba(247, 201, 72, 0.16));
+      border-color: rgba(78, 205, 196, 0.28);
     }
 
     .icon-button {
@@ -205,8 +301,6 @@
       border-color: rgba(78, 205, 196, 0.42);
       color: var(--color-accent);
     }
-    .menu-toggle { display: none; }
-
     .hero {
       min-height: 100vh;
       position: relative;
@@ -811,29 +905,73 @@
       .flow .node::after { right: -20px; }
       .flow .node:nth-child(3)::after, .flow .node:nth-child(6)::after { display: none; }
       .gauge-grid, .three-col { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .navbar {
+        inset: auto max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+        top: auto;
+        width: auto;
+        max-height: none;
+        padding: 8px;
+        border-radius: 20px;
+        transform: none;
+      }
+      .navbar:hover, .navbar:focus-within { width: auto; }
+      .nav-inner {
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+      }
+      .navbar:hover .nav-inner,
+      .navbar:focus-within .nav-inner { align-items: center; }
+      .brand {
+        width: auto;
+        min-width: 44px;
+        height: 44px;
+        justify-content: center;
+        padding: 0;
+        border-bottom: 0;
+        border-right: 1px solid rgba(10, 79, 78, 0.14);
+      }
+      .brand span,
+      .navbar:hover .brand span,
+      .navbar:focus-within .brand span { display: none; }
+      .nav-links {
+        display: flex;
+        gap: 4px;
+        max-height: none;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding: 2px;
+      }
+      .nav-links a,
+      .navbar:hover .nav-links a,
+      .navbar:focus-within .nav-links a {
+        grid-template-columns: 1fr;
+        justify-items: center;
+        min-width: 48px;
+        min-height: 44px;
+        padding: 9px 10px;
+      }
+      .nav-links a span,
+      .navbar:hover .nav-links a span,
+      .navbar:focus-within .nav-links a span { display: none; }
+      .nav-links a.active { transform: translateY(-1px); }
+      .nav-indicator {
+        left: 0;
+        top: 2px;
+        width: var(--active-width);
+        height: calc(100% - 4px);
+        transform: translateX(var(--active-left));
+      }
+      #themeToggle { width: 44px; height: 44px; flex-basis: 44px; }
+      .back-to-top { bottom: 92px; }
     }
 
     @media (max-width: 860px) {
       :root { --nav-height: 68px; }
-      .menu-toggle { display: inline-grid; }
-      .nav-links {
-        position: fixed;
-        inset: var(--nav-height) 0 auto 0;
-        max-height: calc(100vh - var(--nav-height));
-        overflow-y: auto;
-        display: none;
-        padding: 14px 22px 26px;
-        background: rgba(13, 27, 42, 0.96);
-        backdrop-filter: blur(16px);
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .nav-links.open { display: flex; }
-      .nav-links a { border-radius: var(--radius); padding: 12px 10px; }
       .section-head, .two-col, .calculator, footer .grid { grid-template-columns: 1fr; }
       .stat-grid, .feature-grid, .three-col, .four-col, .gauge-grid, .flip-grid { grid-template-columns: 1fr; }
       section { padding: 70px 0; }
-      .hero { min-height: 920px; align-items: start; }
+      .hero { min-height: 920px; align-items: start; padding-bottom: 130px; }
       #map { min-height: 400px; }
       .timeline-item { grid-template-columns: 1fr; gap: 6px; }
       .flow {
@@ -850,7 +988,7 @@
 
     @media (max-width: 520px) {
       .container { width: min(100% - 24px, 1180px); }
-      .navbar { padding: 0 12px; }
+      .navbar { padding: 7px; }
       h1 { font-size: clamp(3.1rem, 16vw, 4.7rem); }
       .stat-card strong, .kpi strong { font-size: 1.8rem; }
       .card, .stat-card { padding: 17px; }
@@ -867,6 +1005,7 @@
         transition-duration: 0.01ms !important;
       }
       .water-band { background-attachment: scroll; }
+      .nav-indicator { transition: none; }
     }
   </style>
 </head>
@@ -876,26 +1015,32 @@
 
   <nav class="navbar" id="navbar" aria-label="Navegação principal">
     <div class="nav-inner">
-      <a href="#inicio" class="brand"><i class="fa-solid fa-fish-fins"></i> TilápiaBR</a>
+      <a href="#inicio" class="brand"><i class="fa-solid fa-fish-fins"></i> <span>TilápiaBR</span></a>
       <div class="nav-links" id="navLinks">
-        <a href="#inicio">Início</a>
-        <a href="#historia">História</a>
-        <a href="#especie">Espécie</a>
-        <a href="#distribuicao">Distribuição</a>
-        <a href="#sistemas">Sistemas</a>
-        <a href="#reproducao">Reprodução</a>
-        <a href="#nutricao">Nutrição</a>
-        <a href="#agua">Água</a>
-        <a href="#mercado">Mercado</a>
-        <a href="#sustentabilidade">Sustentabilidade</a>
-        <a href="#produtos">Produtos</a>
-        <a href="#galeria">Galeria</a>
-        <a href="#faq">FAQ</a>
-        <a href="#noticias">Notícias</a>
-        <a href="#referencias">Referências</a>
+        <span class="nav-indicator" aria-hidden="true"></span>
+        <a href="#inicio" title="Início"><i class="fa-solid fa-house"></i><span>Início</span></a>
+        <a href="#historia" title="História"><i class="fa-solid fa-timeline"></i><span>História</span></a>
+        <a href="#especie" title="Espécie"><i class="fa-solid fa-fish"></i><span>Espécie</span></a>
+        <a href="#distribuicao" title="Distribuição"><i class="fa-solid fa-map-location-dot"></i><span>Distribuição</span></a>
+        <a href="#sistemas" title="Sistemas"><i class="fa-solid fa-water"></i><span>Sistemas</span></a>
+        <a href="#reproducao" title="Reprodução"><i class="fa-solid fa-venus-mars"></i><span>Reprodução</span></a>
+        <a href="#nutricao" title="Nutrição"><i class="fa-solid fa-bowl-food"></i><span>Nutrição</span></a>
+        <a href="#agua" title="Água"><i class="fa-solid fa-droplet"></i><span>Água</span></a>
+        <a href="#sanidade" title="Sanidade"><i class="fa-solid fa-shield-heart"></i><span>Sanidade</span></a>
+        <a href="#manejo" title="Manejo"><i class="fa-solid fa-clipboard-check"></i><span>Manejo</span></a>
+        <a href="#cadeia" title="Cadeia"><i class="fa-solid fa-link"></i><span>Cadeia</span></a>
+        <a href="#mercado" title="Mercado"><i class="fa-solid fa-chart-line"></i><span>Mercado</span></a>
+        <a href="#legislacao" title="Legislação"><i class="fa-solid fa-scale-balanced"></i><span>Legislação</span></a>
+        <a href="#sustentabilidade" title="Sustentabilidade"><i class="fa-solid fa-leaf"></i><span>Sustentabilidade</span></a>
+        <a href="#produtos" title="Produtos"><i class="fa-solid fa-box-open"></i><span>Produtos</span></a>
+        <a href="#ferramentas" title="Ferramentas"><i class="fa-solid fa-calculator"></i><span>Ferramentas</span></a>
+        <a href="#galeria" title="Galeria"><i class="fa-solid fa-images"></i><span>Galeria</span></a>
+        <a href="#curiosidades" title="Curiosidades"><i class="fa-solid fa-lightbulb"></i><span>Curiosidades</span></a>
+        <a href="#faq" title="FAQ"><i class="fa-solid fa-circle-question"></i><span>FAQ</span></a>
+        <a href="#noticias" title="Notícias"><i class="fa-solid fa-newspaper"></i><span>Notícias</span></a>
+        <a href="#referencias" title="Referências"><i class="fa-solid fa-book-open"></i><span>Referências</span></a>
       </div>
       <button class="icon-button" id="themeToggle" aria-label="Alternar tema" title="Alternar tema"><i class="fa-solid fa-moon"></i></button>
-      <button class="icon-button menu-toggle" id="menuToggle" aria-label="Abrir menu" title="Abrir menu"><i class="fa-solid fa-bars"></i></button>
     </div>
   </nav>
 
@@ -1389,29 +1534,71 @@
       $("#themeToggle i").className = next === "dark" ? "fa-solid fa-sun" : "fa-solid fa-moon";
     });
 
-    $("#menuToggle").addEventListener("click", () => {
-      $("#navLinks").classList.toggle("open");
-      document.body.classList.toggle("nav-open");
-    });
-
-    $$("#navLinks a").forEach(link => link.addEventListener("click", () => {
-      $("#navLinks").classList.remove("open");
-      document.body.classList.remove("nav-open");
-    }));
-
     const sections = $$("header[id], main section[id]");
     const navLinks = $$(".nav-links a");
+    const navRail = $("#navLinks");
+    let activeNavLink = null;
+
+    function moveNavIndicator(link) {
+      if (!link) return;
+      const railRect = navRail.getBoundingClientRect();
+      const linkRect = link.getBoundingClientRect();
+      navRail.style.setProperty("--active-top", `${linkRect.top - railRect.top + navRail.scrollTop}px`);
+      navRail.style.setProperty("--active-left", `${linkRect.left - railRect.left + navRail.scrollLeft}px`);
+      navRail.style.setProperty("--active-width", `${linkRect.width}px`);
+      navRail.style.setProperty("--active-height", `${linkRect.height}px`);
+    }
+
+    function setActiveSection(id) {
+      const nextLink = navLinks.find(link => link.getAttribute("href") === `#${id}`);
+      if (!nextLink || nextLink === activeNavLink) {
+        if (nextLink) moveNavIndicator(nextLink);
+        return;
+      }
+      navLinks.forEach(link => {
+        const isActive = link === nextLink;
+        link.classList.toggle("active", isActive);
+        if (isActive) {
+          link.setAttribute("aria-current", "location");
+        } else {
+          link.removeAttribute("aria-current");
+        }
+      });
+      activeNavLink = nextLink;
+      moveNavIndicator(nextLink);
+    }
+
+    navLinks.forEach(link => link.addEventListener("click", () => {
+      const targetId = link.getAttribute("href").slice(1);
+      setActiveSection(targetId);
+    }));
+
+    function currentSectionFromScroll() {
+      return sections.findLast(section => scrollY + innerHeight * 0.45 >= section.offsetTop);
+    }
+
     function onScroll() {
       const max = document.documentElement.scrollHeight - innerHeight;
       $("#progress").style.width = `${Math.max(0, scrollY / max * 100)}%`;
       $("#navbar").classList.toggle("scrolled", scrollY > 35);
       $("#backToTop").classList.toggle("visible", scrollY > 300);
-      const current = sections.findLast(section => scrollY + 120 >= section.offsetTop);
-      if (current) {
-        navLinks.forEach(link => link.classList.toggle("active", link.getAttribute("href") === `#${current.id}`));
-      }
+      if (!("IntersectionObserver" in window)) setActiveSection(currentSectionFromScroll()?.id || "inicio");
     }
     addEventListener("scroll", onScroll, { passive: true });
+
+    if ("IntersectionObserver" in window) {
+      const sectionObserver = new IntersectionObserver(entries => {
+        const visible = entries
+          .filter(entry => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (visible) setActiveSection(visible.target.id);
+      }, { rootMargin: "-38% 0px -48% 0px", threshold: [0, 0.2, 0.5, 0.8] });
+      sections.forEach(section => sectionObserver.observe(section));
+    }
+
+    addEventListener("resize", () => moveNavIndicator(activeNavLink), { passive: true });
+    navRail.addEventListener("scroll", () => moveNavIndicator(activeNavLink), { passive: true });
+    setActiveSection(location.hash.slice(1) || "inicio");
     onScroll();
     $("#backToTop").addEventListener("click", () => scrollTo({ top: 0, behavior: prefersReduced ? "auto" : "smooth" }));
 
