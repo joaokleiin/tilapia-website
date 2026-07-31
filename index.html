@@ -171,16 +171,40 @@
     .icon-button {
       width: 42px;
       height: 42px;
+      flex: 0 0 42px;
+      padding: 0;
       border: 1px solid rgba(255, 255, 255, 0.28);
       border-radius: 50%;
       display: inline-grid;
       place-items: center;
       background: rgba(255, 255, 255, 0.12);
       color: #fff;
-      transition: transform 0.2s ease, background 0.2s ease;
+      line-height: 1;
+      transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .icon-button i {
+      display: block;
+      font-size: 1rem;
+      line-height: 1;
     }
 
     .icon-button:hover { transform: translateY(-2px); background: rgba(255, 255, 255, 0.22); }
+    #themeToggle {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: rgba(255, 255, 255, 0.42);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 10px 24px rgba(13, 27, 42, 0.14);
+      color: var(--color-highlight);
+    }
+    #themeToggle:hover {
+      background: rgba(255, 255, 255, 0.28);
+      border-color: rgba(247, 201, 72, 0.72);
+    }
+    [data-theme="dark"] #themeToggle {
+      background: rgba(78, 205, 196, 0.16);
+      border-color: rgba(78, 205, 196, 0.42);
+      color: var(--color-accent);
+    }
     .menu-toggle { display: none; }
 
     .hero {
@@ -1357,6 +1381,7 @@
 
     const savedTheme = localStorage.getItem("tilapia-theme");
     if (savedTheme) document.documentElement.dataset.theme = savedTheme;
+    $("#themeToggle i").className = document.documentElement.dataset.theme === "dark" ? "fa-solid fa-sun" : "fa-solid fa-moon";
     $("#themeToggle").addEventListener("click", () => {
       const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
       document.documentElement.dataset.theme = next;
