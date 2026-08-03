@@ -583,12 +583,29 @@
       text-shadow: 0 0 8px rgba(78, 205, 196, 0.45);
     }
 
-    #map {
+    #map, #mapHistoria {
       min-height: 560px;
       border-radius: var(--radius);
       overflow: hidden;
       box-shadow: var(--shadow-soft);
       border: 1px solid var(--color-line);
+    }
+
+    #mapHistoria {
+      min-height: 500px;
+      margin: 30px 0;
+      animation: slideIn 0.6s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .ranking {
@@ -628,6 +645,35 @@
       background: var(--color-primary);
       color: #fff;
       border-color: var(--color-primary);
+    }
+
+    .system-card {
+      padding: 0;
+      overflow: hidden;
+      border-color: rgba(10, 79, 78, 0.2);
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+
+    .system-grid { align-items: stretch; }
+
+    .system-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(10, 79, 78, 0.15);
+    }
+
+    .system-img {
+      width: 100%;
+      height: 280px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .system-body {
+      padding: 22px;
+    }
+
+    [data-theme="dark"] .system-card {
+      border-color: rgba(78, 205, 196, 0.28);
     }
 
     .flow {
@@ -1010,7 +1056,8 @@
       .stat-grid, .feature-grid, .three-col, .four-col, .gauge-grid, .flip-grid { grid-template-columns: 1fr; }
       section { padding: 70px 0; }
       .hero { min-height: 920px; align-items: start; padding-bottom: 130px; }
-      #map { min-height: 400px; }
+      #map, #mapHistoria { min-height: 400px; }
+      .system-img { height: 220px; }
       .timeline-item { grid-template-columns: 1fr; gap: 6px; }
       .flow {
         grid-template-columns: 1fr;
@@ -1107,9 +1154,11 @@
     <section id="historia">
       <div class="container">
         <div class="section-head" data-aos="fade-up">
-          <div><span class="eyebrow">Origem e expansão</span><h2>Da África aos polos brasileiros</h2></div>
+          <div><span class="eyebrow">Origem e expansão</span><h2>Da África aos polos brasileiros</h2>
+          </div>
           <p class="lead">Nativa dos grandes lagos africanos, a tilápia foi introduzida no Brasil em 1971 e encontrou no país clima, tecnologia e mercado para se tornar protagonista.</p>
         </div>
+        <div id="mapHistoria" data-aos="fade-up" aria-label="Mapa interativo mostrando a origem da tilápia no Lago Vitória e sua chegada ao Brasil"></div>
         <div class="grid two-col">
           <article class="card" data-aos="fade-up">
             <h3>Origem geográfica</h3>
@@ -1197,15 +1246,7 @@
           <div><span class="eyebrow">Tecnologia de cultivo</span><h2>Sistemas de produção</h2></div>
           <p class="lead">Da piscicultura familiar ao sistema de recirculação, cada arranjo produtivo equilibra custo, densidade, controle ambiental e eficiência hídrica.</p>
         </div>
-        <div class="tabs" data-aos="fade-up">
-          <button class="tab active" data-tab="escavados">Tanques escavados</button>
-          <button class="tab" data-tab="rede">Tanques-rede</button>
-          <button class="tab" data-tab="viveiros">Viveiros</button>
-          <button class="tab" data-tab="ras">RAS</button>
-          <button class="tab" data-tab="bioflocos">Bioflocos</button>
-          <button class="tab" data-tab="aquaponia">Aquaponia</button>
-        </div>
-        <article class="card" id="systemContent" data-aos="fade-up"></article>
+        <div class="grid three-col system-grid" id="systemGrid" data-aos="fade-up"></div>
       </div>
     </section>
 
@@ -1391,8 +1432,8 @@
         </div>
         <div class="grid four-col">
           <article class="card product-card"><img src="https://images.unsplash.com/photo-1615141982883-c7ad0e69fd62?w=800&q=80&auto=format&fit=crop" alt="Filé de peixe preparado"><h3>Filé</h3><p>Principal produto industrializado para varejo e exportação.</p></article>
-          <article class="card product-card"><img src="https://images.unsplash.com/photo-1524704654690-b56c05c78a00?w=800&q=80&auto=format&fit=crop" alt="Peixes inteiros frescos"><h3>Peixe inteiro</h3><p>Mercados regionais, feiras e consumo local.</p></article>
-          <article class="card product-card"><img src="https://images.unsplash.com/photo-1573227896778-8f378c4029d4?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Bolsa de couro artesanal"><h3>Couro e pele</h3><p>Moda, acessórios e bioindústria com alto valor agregado.</p></article>
+          <article class="card product-card"><img src="images/tilapia-photo.jpeg" alt="Peixes inteiros frescos"><h3>Peixe inteiro</h3><p>Mercados regionais, feiras e consumo local.</p></article>
+          <article class="card product-card"><img src="images/cour-e-pele.jpeg" alt="Bolsa de couro artesanal"><h3>Couro e pele</h3><p>Moda, acessórios e bioindústria com alto valor agregado.</p></article>
           <article class="card product-card"><img src="https://images.unsplash.com/photo-1743187248656-b53c203d808e?q=80&w=765&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Frasco cosmético"><h3>Colágeno</h3><p>Aplicações cosméticas, farmacêuticas e biomateriais.</p></article>
           <article class="card product-card"><img src="https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=800&q=80&auto=format&fit=crop" alt="Óleo em garrafa"><h3>Óleo</h3><p>Uso alimentar, industrial e suplementar.</p></article>
           <article class="card product-card"><img src="https://images.unsplash.com/photo-1610725664285-7c57e6eeac3f?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Ingredientes de ração"><h3>Farinha</h3><p>Subproduto para formulação de rações animais.</p></article>
@@ -1713,20 +1754,56 @@
     drawWaves();
 
     const systemData = {
-      escavados: ["Tanques escavados", "Estruturas em solo com densidade típica de 1 a 3 kg/m². Têm custo moderado, bom controle operacional e ampla adoção em propriedades rurais."],
-      rede: ["Tanques-rede", "Gaiolas instaladas em reservatórios e açudes. Permitem alta troca de água e são importantes no Nordeste, mas exigem atenção a licenciamento e carga orgânica."],
-      viveiros: ["Viveiros", "Sistemas simples e de baixo custo, adequados a pequenos produtores e projetos de base familiar."],
-      ras: ["Sistema de Recirculação (RAS)", "Alta tecnologia com filtros mecânicos e biológicos. Reduz consumo de água e aumenta controle ambiental, em linha com inovação citada pela FAO 2024."],
-      bioflocos: ["Bioflocos (BFT)", "Comunidade microbiana ajuda a controlar compostos nitrogenados e pode complementar a nutrição, reduzindo dependência de proteína externa."],
-      aquaponia: ["Aquaponia", "Integra peixe e plantas: resíduos nitrogenados alimentam vegetais, que ajudam a depurar a água. A FAO cita aquaponia como solução integrada em regiões áridas."]
+      escavados: {
+        title: "Tanques escavados",
+        text: "Estruturas em solo com densidade típica de 1 a 3 kg/m². Têm custo moderado, bom controle operacional e ampla adoção em propriedades rurais.",
+        img: "images/tanques-escavados.jpg",
+        alt: "Tanques escavados para produção aquícola"
+      },
+      rede: {
+        title: "Tanques-rede",
+        text: "Gaiolas instaladas em reservatórios e açudes. Permitem alta troca de água e são importantes no Nordeste, mas exigem atenção a licenciamento e carga orgânica.",
+        img: "images/tanque-rede.jpg",
+        alt: "Tanques-rede em ambiente aquático"
+      },
+      viveiros: {
+        title: "Viveiros",
+        text: "Sistemas simples e de baixo custo, adequados a pequenos produtores e projetos de base familiar.",
+        img: "images/viveiros-peixe.jpg",
+        alt: "Viveiro rural para cultivo de peixes"
+      },
+      ras: {
+        title: "Sistema de Recirculação (RAS)",
+        text: "Alta tecnologia com filtros mecânicos e biológicos. Reduz consumo de água e aumenta controle ambiental, em linha com inovação citada pela FAO 2024.",
+        img: "images/Recirculating_Aquaculture_System_7.jpg",
+        alt: "Sistema de recirculação com tecnologia de laboratório"
+      },
+      bioflocos: {
+        title: "Bioflocos (BFT)",
+        text: "Comunidade microbiana ajuda a controlar compostos nitrogenados e pode complementar a nutrição, reduzindo dependência de proteína externa.",
+        img: "images/bioflocos.jfif",
+        alt: "Tanque de água para sistema de bioflocos"
+      },
+      aquaponia: {
+        title: "Aquaponia",
+        text: "Integra peixe e plantas: resíduos nitrogenados alimentam vegetais, que ajudam a depurar a água. A FAO cita aquaponia como solução integrada em regiões áridas.",
+        img: "images/aquaponia.png",
+        alt: "Sistema integrado de aquaponia"
+      }
     };
-    function setSystem(key) {
-      const [title, text] = systemData[key];
-      $("#systemContent").innerHTML = `<div class="mini-icon"><i class="fa-solid fa-fish"></i></div><h3>${title}</h3><p>${text}</p>`;
-      $$(".tab").forEach(btn => btn.classList.toggle("active", btn.dataset.tab === key));
+    function renderSystemGrid() {
+      $("#systemGrid").innerHTML = Object.values(systemData).map(({ title, text, img, alt }) => `
+        <article class="card system-card">
+          <img src="${img}" alt="${alt}" class="system-img" loading="lazy">
+          <div class="system-body">
+            <div class="mini-icon"><i class="fa-solid fa-fish"></i></div>
+            <h3>${title}</h3>
+            <p>${text}</p>
+          </div>
+        </article>
+      `).join("");
     }
-    $$(".tab").forEach(btn => btn.addEventListener("click", () => setSystem(btn.dataset.tab)));
-    setSystem("escavados");
+    renderSystemGrid();
 
     const chartColor = () => getComputedStyle(document.documentElement).getPropertyValue("--color-primary").trim();
     const accent = () => getComputedStyle(document.documentElement).getPropertyValue("--color-accent").trim();
@@ -1815,6 +1892,31 @@
     $("#lightbox").addEventListener("click", () => $("#lightbox").classList.remove("open"));
 
     if (window.L) {
+      const mapHistoria = L.map("mapHistoria", { scrollWheelZoom: false }).setView([-2, -2], 3);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 7, attribution: "&copy; OpenStreetMap" }).addTo(mapHistoria);
+      const origem = L.circleMarker([0.5, 33.5], {
+        radius: 9,
+        color: "#0A4F4E",
+        weight: 3,
+        fillColor: "#4ECDC4",
+        fillOpacity: 0.95
+      }).addTo(mapHistoria).bindPopup("<strong>Origem</strong><br>Lago Vitória, África Subsaariana<br><em>Oreochromis niloticus</em>");
+      const chegada = L.circleMarker([-5, -37], {
+        radius: 9,
+        color: "#0A4F4E",
+        weight: 3,
+        fillColor: "#1B8A7A",
+        fillOpacity: 0.95
+      }).addTo(mapHistoria).bindPopup("<strong>Chegada ao Brasil</strong><br>Nordeste Brasileiro, 1971<br>DNOCS");
+      L.polyline([[0.5, 33.5], [-5, -37]], {
+        color: "#4ECDC4",
+        weight: 3,
+        opacity: 0.75,
+        dashArray: "6, 8"
+      }).addTo(mapHistoria);
+      mapHistoria.fitBounds([[0.5, 33.5], [-5, -37]], { padding: [36, 36] });
+      origem.openPopup();
+
       const map = L.map("map", { scrollWheelZoom: false }).setView([-15.8, -47.9], 4);
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 7, attribution: "&copy; OpenStreetMap" }).addTo(map);
       [
