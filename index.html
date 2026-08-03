@@ -113,7 +113,7 @@
       z-index: 999;
       padding: 10px;
       color: var(--color-text);
-      background: rgba(255, 255, 255, 0.22);
+      background: rgba(240, 248, 247, 0.78);
       border: 1px solid rgba(255, 255, 255, 0.34);
       border-radius: 22px;
       backdrop-filter: blur(18px);
@@ -126,7 +126,13 @@
       width: min(216px, calc(100vw - 28px));
     }
 
-    .navbar.scrolled, [data-theme="dark"] .navbar {
+    .navbar.scrolled {
+      background: rgba(240, 248, 247, 0.86);
+      border-color: rgba(10, 79, 78, 0.18);
+      box-shadow: 0 20px 54px rgba(13, 27, 42, 0.2);
+    }
+
+    [data-theme="dark"] .navbar {
       background: rgba(13, 27, 42, 0.72);
       border-color: rgba(78, 205, 196, 0.22);
       box-shadow: 0 20px 54px rgba(0, 0, 0, 0.24);
@@ -196,7 +202,7 @@
       border-radius: 14px;
       font-size: 0.8rem;
       font-weight: 700;
-      color: color-mix(in srgb, var(--color-primary), var(--color-text) 35%);
+      color: #073B3A;
       outline: none;
       white-space: nowrap;
       transition: color 0.2s ease, transform 0.2s ease;
@@ -215,7 +221,7 @@
     .nav-links a i {
       font-size: 0.95rem;
       text-align: center;
-      color: var(--color-secondary);
+      color: #0B7F73;
     }
 
     .nav-links a.active, .nav-links a:hover, .nav-links a:focus-visible {
@@ -565,6 +571,18 @@
       font-size: 1.2rem;
     }
 
+    [data-theme="dark"] .mini-icon {
+      background: rgba(78, 205, 196, 0.18);
+      color: var(--color-accent);
+      box-shadow: 0 0 0 1px rgba(78, 205, 196, 0.24), 0 0 18px rgba(78, 205, 196, 0.16);
+    }
+
+    [data-theme="dark"] .mini-icon i {
+      color: var(--color-accent) !important;
+      filter: brightness(1.1) drop-shadow(0 0 4px rgba(78, 205, 196, 0.4));
+      text-shadow: 0 0 8px rgba(78, 205, 196, 0.45);
+    }
+
     #map {
       min-height: 560px;
       border-radius: var(--radius);
@@ -710,6 +728,26 @@
 
     .flip-front strong { font-size: 1.08rem; color: var(--color-primary); }
     .flip-back { transform: rotateY(180deg); background: var(--color-primary); color: #fff; }
+
+    [data-theme="dark"] .flip-front,
+    [data-theme="dark"] .flip-back {
+      border-color: rgba(78, 205, 196, 0.28);
+      box-shadow: 0 18px 44px rgba(0, 0, 0, 0.34), inset 0 0 0 1px rgba(78, 205, 196, 0.08);
+    }
+
+    [data-theme="dark"] .flip-front {
+      background: linear-gradient(135deg, rgba(22, 51, 50, 0.96), rgba(13, 27, 42, 0.92));
+    }
+
+    [data-theme="dark"] .flip-front strong {
+      color: var(--color-highlight);
+      text-shadow: 0 0 10px rgba(247, 201, 72, 0.2);
+    }
+
+    [data-theme="dark"] .flip-back {
+      background: linear-gradient(135deg, rgba(10, 79, 78, 0.96), rgba(7, 19, 22, 0.94));
+      color: #E8F5F5;
+    }
 
     .calculator {
       display: grid;
@@ -1354,12 +1392,12 @@
         <div class="grid four-col">
           <article class="card product-card"><img src="https://images.unsplash.com/photo-1615141982883-c7ad0e69fd62?w=800&q=80&auto=format&fit=crop" alt="Filé de peixe preparado"><h3>Filé</h3><p>Principal produto industrializado para varejo e exportação.</p></article>
           <article class="card product-card"><img src="https://images.unsplash.com/photo-1524704654690-b56c05c78a00?w=800&q=80&auto=format&fit=crop" alt="Peixes inteiros frescos"><h3>Peixe inteiro</h3><p>Mercados regionais, feiras e consumo local.</p></article>
-          <article class="card product-card"><img src="https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?w=800&q=80&auto=format&fit=crop" alt="Bolsa de couro artesanal"><h3>Couro e pele</h3><p>Moda, acessórios e bioindústria com alto valor agregado.</p></article>
-          <article class="card product-card"><img src="https://images.unsplash.com/photo-1550572017-edd951aa8f72?w=800&q=80&auto=format&fit=crop" alt="Frasco cosmético"><h3>Colágeno</h3><p>Aplicações cosméticas, farmacêuticas e biomateriais.</p></article>
+          <article class="card product-card"><img src="https://images.unsplash.com/photo-1573227896778-8f378c4029d4?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Bolsa de couro artesanal"><h3>Couro e pele</h3><p>Moda, acessórios e bioindústria com alto valor agregado.</p></article>
+          <article class="card product-card"><img src="https://images.unsplash.com/photo-1743187248656-b53c203d808e?q=80&w=765&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Frasco cosmético"><h3>Colágeno</h3><p>Aplicações cosméticas, farmacêuticas e biomateriais.</p></article>
           <article class="card product-card"><img src="https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=800&q=80&auto=format&fit=crop" alt="Óleo em garrafa"><h3>Óleo</h3><p>Uso alimentar, industrial e suplementar.</p></article>
-          <article class="card product-card"><img src="https://images.unsplash.com/photo-1550258987-190a2d41a8ba?w=800&q=80&auto=format&fit=crop" alt="Ingredientes de ração"><h3>Farinha</h3><p>Subproduto para formulação de rações animais.</p></article>
-          <article class="card product-card"><img src="https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=800&q=80&auto=format&fit=crop" alt="Cápsulas de suplemento"><h3>Ômega-3</h3><p>Cápsulas e suplementos derivados do óleo.</p></article>
-          <article class="card product-card"><img src="https://images.unsplash.com/photo-1516685018646-5499d0a7d42f?w=800&q=80&auto=format&fit=crop" alt="Processamento de alimentos"><h3>Subprodutos</h3><p>Cabeça, espinha e vísceras aproveitadas industrialmente.</p></article>
+          <article class="card product-card"><img src="https://images.unsplash.com/photo-1610725664285-7c57e6eeac3f?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Ingredientes de ração"><h3>Farinha</h3><p>Subproduto para formulação de rações animais.</p></article>
+          <article class="card product-card"><img src="https://images.unsplash.com/photo-1664956618021-73c47736845e?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Cápsulas de suplemento"><h3>Ômega-3</h3><p>Cápsulas e suplementos derivados do óleo.</p></article>
+          <article class="card product-card"><img src="https://plus.unsplash.com/premium_photo-1757672146695-5a56d90e55a3?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Processamento de alimentos"><h3>Subprodutos</h3><p>Cabeça, espinha e vísceras aproveitadas industrialmente.</p></article>
         </div>
       </div>
     </section>
@@ -1468,12 +1506,12 @@
           <p class="lead">Cards estáticos com temas atuais para contextualizar inovação, mercado e sustentabilidade.</p>
         </div>
         <div class="grid three-col">
-          <article class="card news-card"><img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80&auto=format&fit=crop" alt="Mar aberto"><span class="tag">FAO 2024</span><h3>Aquicultura supera a pesca extrativista</h3><p>Em 2022, a aquicultura respondeu por 51% da produção de animais aquáticos.</p></article>
-          <article class="card news-card"><img src="https://images.unsplash.com/photo-1569402928543-87ca8e9a5ba9?w=800&q=80&auto=format&fit=crop" alt="Peixe em água limpa"><span class="tag">Mercado</span><h3>Brasil impulsiona crescimento regional</h3><p>O país somou 108 mil toneladas ao crescimento aquícola recente na América Latina.</p></article>
-          <article class="card news-card"><img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&q=80&auto=format&fit=crop" alt="Paisagem rural com água"><span class="tag">Tecnologia</span><h3>Bioflocos ganham escala</h3><p>Sistemas BFT reduzem renovação de água e transformam microbiota em aliada.</p></article>
-          <article class="card news-card"><img src="https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=800&q=80&auto=format&fit=crop" alt="Bolsa de couro"><span class="tag">Subprodutos</span><h3>Couro de tilápia chega à moda</h3><p>A pele agrega valor e fortalece o aproveitamento integral.</p></article>
-          <article class="card news-card"><img src="https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b?w=800&q=80&auto=format&fit=crop" alt="Lâmpada e inovação"><span class="tag">Pesquisa</span><h3>Rações de menor impacto</h3><p>Novos ingredientes buscam reduzir custo e pressão sobre recursos marinhos.</p></article>
-          <article class="card news-card"><img src="https://images.unsplash.com/photo-1497436072909-f5e4be1d7b2b?w=800&q=80&auto=format&fit=crop" alt="Ambiente natural preservado"><span class="tag">ODS 14</span><h3>Aquicultura e metas ambientais</h3><p>Boas práticas ajudam a conciliar produção, renda e conservação.</p></article>
+          <article class="card news-card"><img src="https://images.unsplash.com/photo-1529230117010-b6c436154f25?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Mar aberto"><span class="tag">FAO 2024</span><h3>Aquicultura supera a pesca extrativista</h3><p>Em 2022, a aquicultura respondeu por 51% da produção de animais aquáticos.</p></article>
+          <article class="card news-card"><img src="https://images.unsplash.com/photo-1655157639280-a8e4594d98ac?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Peixe em água limpa"><span class="tag">Mercado</span><h3>Brasil impulsiona crescimento regional</h3><p>O país somou 108 mil toneladas ao crescimento aquícola recente na América Latina.</p></article>
+          <article class="card news-card"><img src="https://images.unsplash.com/photo-1581091007718-0c50d599bfd0?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Paisagem rural com água"><span class="tag">Tecnologia</span><h3>Bioflocos ganham escala</h3><p>Sistemas BFT reduzem renovação de água e transformam microbiota em aliada.</p></article>
+          <article class="card news-card"><img src="https://plus.unsplash.com/premium_photo-1757672146695-5a56d90e55a3?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D alt="Bolsa de couro"><span class="tag">Subprodutos</span><h3>Couro de tilápia chega à moda</h3><p>A pele agrega valor e fortalece o aproveitamento integral.</p></article>
+          <article class="card news-card"><img src="https://images.unsplash.com/photo-1627920770555-b9bc65b30242?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Lâmpada e inovação"><span class="tag">Pesquisa</span><h3>Rações de menor impacto</h3><p>Novos ingredientes buscam reduzir custo e pressão sobre recursos marinhos.</p></article>
+          <article class="card news-card"><img src="https://images.unsplash.com/photo-1628859742240-269783f56d17?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="Ambiente natural preservado"><span class="tag">ODS 14</span><h3>Aquicultura e metas ambientais</h3><p>Boas práticas ajudam a conciliar produção, renda e conservação.</p></article>
         </div>
       </div>
     </section>
@@ -1746,17 +1784,17 @@
     updateCalculators();
 
     const images = [
-      ["especie", "Tilápias em água limpa", "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&q=80&auto=format&fit=crop"],
-      ["sistemas", "Aquicultura em tanques", "https://images.unsplash.com/photo-1583212292454-1fe6229603b7?w=800&q=80&auto=format&fit=crop"],
-      ["especie", "Peixe em cardume", "https://images.unsplash.com/photo-1524704654690-b56c05c78a00?w=800&q=80&auto=format&fit=crop"],
+      ["especie", "Tilápias em água limpa", "https://images.unsplash.com/photo-1731552467185-aadc0dc27c7e?q=80&w=1173&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"],
+      ["sistemas", "Aquicultura em tanques", "https://plus.unsplash.com/premium_photo-1733266883899-29971ddbe5e3?q=80&w=1075&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"],
+      ["especie", "Peixe em cardume", "https://images.unsplash.com/photo-1523837006673-1ad9ddfcbc0c?q=80&w=736&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"],
       ["processamento", "Produto de pescado", "https://images.unsplash.com/photo-1615141982883-c7ad0e69fd62?w=800&q=80&auto=format&fit=crop"],
-      ["produtos", "Peixe preparado", "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=800&q=80&auto=format&fit=crop"],
-      ["equipamentos", "Tecnologia de laboratório", "https://images.unsplash.com/photo-1581093458791-9d42cc030d4d?w=800&q=80&auto=format&fit=crop"],
-      ["sistemas", "Reservatório produtivo", "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=800&q=80&auto=format&fit=crop"],
-      ["produtos", "Cápsulas e suplementos", "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=800&q=80&auto=format&fit=crop"],
+      ["produtos", "Peixe preparado", "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80"],
+      ["equipamentos", "Tecnologia de laboratório", "https://images.unsplash.com/photo-1582560475093-ba66accbc424?q=80&w=720&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"],
+      ["sistemas", "Reservatório produtivo", "https://images.unsplash.com/photo-1581092579364-7a6468cb161e?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"],
+      ["produtos", "Cápsulas e suplementos", "https://images.unsplash.com/photo-1664956618021-73c47736845e?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"],
       ["processamento", "Alimentos frescos", "https://images.unsplash.com/photo-1542838132-92c53300491e?w=800&q=80&auto=format&fit=crop"],
       ["equipamentos", "Medição técnica", "https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b?w=800&q=80&auto=format&fit=crop"],
-      ["sistemas", "Água e produção rural", "https://images.unsplash.com/photo-1497436072909-f5e4be1d7b2b?w=800&q=80&auto=format&fit=crop"],
+      ["sistemas", "Água e produção rural", "https://plus.unsplash.com/premium_photo-1661825536186-19606cd9a0f1?q=80&w=719&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"],
       ["produtos", "Óleo e subprodutos", "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=800&q=80&auto=format&fit=crop"]
     ];
     function renderGallery(filter = "all") {
